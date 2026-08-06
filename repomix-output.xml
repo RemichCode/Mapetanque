@@ -1,0 +1,2845 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: node_modules, .git, data/terrains.geojson, .vscode
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.github/
+  workflows/
+    update-osm.yml
+images/
+  boule logo.png
+  boule.png
+scripts/
+  update_terrains.py
+FONCTIONNALITES.md
+google2225db80bf0760f5.html
+index.html
+LICENSE
+logo.png
+NOTES_page_statistiques.md
+NOTES_terrains_insolites.md
+README.md
+script.js
+style.css
+translations.js
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="FONCTIONNALITES.md">
+# Mapetanque — Récapitulatif des fonctionnalités
+
+Document de référence interne (non destiné à être affiché sur le site public).
+Dernière mise à jour : voir historique Git.
+
+---
+
+## 🗺️ Carte et données
+
+- Carte interactive de la Belgique (Leaflet + fonds OpenStreetMap)
+- Deux fonds de carte au choix : "Plan" et "Satellite" (contrôle de calques Leaflet)
+- Terrains regroupés en clusters (chiffres colorés) qui se séparent automatiquement au zoom
+- Données des terrains issues d'OpenStreetMap (requête Overpass ciblant `leisure=pitch` + `sport=boules`/`petanque` sur la Belgique)
+- Régénération hebdomadaire automatique via le script `generer_terrains.py`
+- Nom de rue/lieu le plus proche calculé pour chaque terrain (géocodage inversé Nominatim), **précalculé et stocké directement dans `terrains.geojson`** pour création d'un titre dynamique.
+
+## 📍 Localisation et recherche
+
+- Bouton "📍 Me localiser" (géolocalisation native du navigateur)
+- Champ de recherche libre (adresse, ville, région) via l'API de recherche Nominatim
+- Zoom automatiquement adapté à la nature du résultat trouvé (adresse précise → zoom serré ; ville/région → `fitBounds` sur toute la zone)
+- Calcul de distance (formule de Haversine) affiché dans chaque fiche terrain une fois la position de l'utilisateur connue
+
+## 📋 Fiche d'un terrain (popup au clic sur un marqueur)
+
+- Titre dynamique : `Terrain [nom de rue]` si une rue proche a été trouvée, sinon `Terrain de pétanque`
+- Statut d'accès : `public` ou `probablement public` (selon le tag OSM `access`)
+- Distance jusqu'au terrain (si géolocalisation ou recherche active), sinon message incitant à se localiser
+- Lien "🚗 Afficher l'itinéraire" → ouvre Google Maps en mode itinéraire
+- Lien "📤 Partager ce terrain" → ouvre le panneau de partage avec un lien direct vers ce terrain précis
+
+## 📤 Partage
+
+- **Partage d'un terrain précis** : génère une URL du type `?lat=...&lon=...&z=18`. À l'ouverture de ce lien, le site retrouve automatiquement le terrain correspondant, centre la carte dessus et rouvre son popup — sans passer par une page dédiée par terrain (pas encore de fiches individuelles indexées Google, voir section "Pistes futures")
+- **Partage du site** : rangée d'icônes discrètes dans le footer (WhatsApp, Facebook, X, e-mail, copier le lien), alignée à droite
+- Petit retour visuel (icône qui change de couleur ~2 sec) lors de la copie du lien
+
+## 🌍 Multilingue (FR / NL / DE)
+
+- Sélecteur de langue fixe en haut à gauche de l'écran, visible en permanence
+- Détection automatique de la langue du navigateur au premier passage (repli sur le français si langue non reconnue)
+- Mémorisation du choix via `localStorage` (le visiteur retrouve sa langue lors d'une prochaine visite)
+- Traduction complète et dynamique : titre, tagline, menu, panneau À propos/Contact/FAQ, popups des terrains, panneau de partage, footer (y compris pluriels et formats de date localisés : `31 juillet 2026` / `31 juli 2026` / `31. Juli 2026`)
+- Toutes les traductions centralisées dans `translations.js`
+
+## 📖 Panneau d'info coulissant
+
+- Ouverture depuis le menu burger (☰, en haut à droite)
+- Mini-navigation interne en haut du panneau (À propos / Contact / FAQ) permettant de changer de sujet **sans refermer le panneau**
+- Onglet actif mis en évidence visuellement
+- FAQ en accordéon natif (`<details>`/`<summary>`, sans JS dédié) — actuellement 5 questions/réponses :
+  1. D'où viennent les informations affichées sur la carte ?
+  2. Comment trouver un terrain près de moi ?
+  3. Puis-je ajouter une photo, un avis ou des informations pratiques ?
+  4. Un terrain accessible au public près de chez moi n'apparaît pas sur la carte, que faire ?
+  5. Un terrain indiqué sur la carte n'existe plus ou n'est plus praticable, que faire ?
+
+## 📊 Footer
+
+- Nombre total de terrains recensés (calculé côté client depuis `terrains.geojson`, aucune configuration manuelle)
+- Date de la dernière mise à jour des données, récupérée via l'API GitHub (date du dernier commit ayant modifié `terrains.geojson`)
+- Crédit OpenStreetMap (lien cliquable)
+- Icônes de partage du site
+
+## 🎨 Identité visuelle et confort d'usage
+
+- Jeu de mots visuel dans le titre : "**Map**etanque" (Map en italique/gras/bleu)
+- Layout en flexbox occupant toute la hauteur d'écran (`min-height: 100vh`) : la carte s'étire pour occuper tout l'espace disponible, sans zone vide ni scrollbar parasite
+- Site entièrement responsive (mobile/desktop), avec espace réservé en haut sur mobile pour éviter que le titre ne chevauche les boutons flottants
+- Icône de marqueur cohérente (position utilisateur ou résultat de recherche)
+- Panneaux coulissants (menu burger, info, partage) avec fond assombri et fermeture au clic extérieur
+
+## 🛠️ Infrastructure
+
+- Site 100 % statique : `index.html`, `style.css`, `script.js`, `translations.js`, `data/terrains.geojson`
+- Hébergé sur GitHub Pages (`mapetanque.github.io`), déploiement automatique à chaque `git push`
+- Génération des données via `generer_terrains.py`, à exécuter manuellement ou via tâche planifiée (~30 min d'exécution à cause de la limite Nominatim d'1 requête/seconde)
+
+---
+
+## 🔭 Pistes futures évoquées (non développées)
+
+- Fiches individuelles par terrain avec URL dédiée, pour l'indexation Google (génération statique envisagée)
+- Système de notes (/5) et commentaires par terrain (nécessiterait un backend — Supabase/Firebase envisagés)
+- Tags associables à un terrain par les usagers (zone ombragée, bar à proximité, terrain en pente, compteur de points, etc. — liste complète déjà brainstormée)
+- Balises Open Graph pour un rendu soigné des liens partagés sur les réseaux sociaux
+- Nom de domaine personnalisé (ex. `mapetanque.be`) à la place de `mapetanque.github.io`
+</file>
+
+<file path="google2225db80bf0760f5.html">
+google-site-verification: google2225db80bf0760f5.html
+</file>
+
+<file path="LICENSE">
+MIT License
+
+Copyright (c) 2026 mapetanque
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+</file>
+
+<file path="NOTES_page_statistiques.md">
+# 📊 Piste future : page statistiques par commune / province / région
+
+Document de réflexion (rien n'est développé, juste la faisabilité explorée).
+
+---
+
+## Objectif
+
+Une page affichant, par commune, ville, province et région :
+- le nombre total de terrains
+- le nombre de terrains par km²
+- le nombre de terrains ajoutés/supprimés le mois dernier
+
+## Faisabilité par élément
+
+### 1. Nombre de terrains par commune / province / région
+✅ **Facile.** Le script fait déjà une requête Nominatim par terrain (pour le nom de rue). Il suffit d'exploiter les champs d'adresse supplémentaires déjà présents dans la réponse Nominatim (commune, province, région) — aucun nouvel appel réseau nécessaire.
+
+### 2. Nombre de terrains par km²
+⚠️ **Faisable, mais demande une donnée supplémentaire** : la superficie de chaque commune/province/région.
+- **Option recommandée** : données officielles Statbel (institut belge de statistique), en open data.
+- Option alternative (plus complexe) : calcul via polygones de frontières administratives avec `geopandas`/`shapely` — nécessite une projection cartographique adaptée pour un calcul de surface précis.
+
+### 3. Terrains ajoutés/supprimés le mois dernier
+✅ **Faisable directement via OSM**, sans avoir à archiver nos propres snapshots.
+
+Overpass propose un mécanisme fait pour ça : les **"augmented diffs" (adiff)**. En interrogeant Overpass avec deux dates (il y a un mois / aujourd'hui) pour une requête donnée, il renvoie directement les éléments créés, modifiés ou supprimés entre les deux — pas besoin de comparer nous-mêmes deux fichiers ni d'archiver quoi que ce soit.
+
+**Avantages :**
+- Pas de stockage de snapshots hebdomadaires nécessaire.
+- Donnée exacte, gérée par OSM directement.
+- Rend inutile le "chantier de versionning" évoqué comme piste future dans le README.
+
+**Points de vigilance :**
+- Un terrain "supprimé" dans nos résultats peut simplement avoir été re-tagué (perte du tag `sport=petanque`) sans avoir été physiquement détruit — à formuler prudemment ("retiré de la carte" plutôt que "détruit").
+- Une requête adiff sur toute la Belgique peut être plus lourde ; à tester pour ne pas dépasser les limites des serveurs Overpass gratuits.
+- Un terrain qui existe depuis des années mais vient seulement d'être cartographié apparaîtra comme "ajouté ce mois-ci" — nuance à garder en tête si les chiffres sont communiqués publiquement.
+
+## Architecture envisagée
+
+Cohérente avec l'existant : toujours 100% statique.
+- Le script Python calcule les agrégats (comptages, densité, deltas mensuels via adiff) → génère un fichier JSON de données.
+- Une page HTML dédiée affiche ces données (tableau/graphique).
+- Pas de backend, pas de base de données nécessaire.
+
+## Prochaine étape suggérée
+
+1. Commencer par les points 1 et 2 (relativement rapides).
+2. Tester une requête adiff sur Overpass Turbo pour voir concrètement ce qu'elle renvoie, avant de l'intégrer au script.
+3. Traiter le point 3 comme un vrai petit chantier à part.
+</file>
+
+<file path="NOTES_terrains_insolites.md">
+# 🔎 Exploration : terrains de pétanque insolites (usage perso / futurs articles)
+
+---
+
+## Catégories envisagées et faisabilité
+
+| Catégorie | Faisabilité | Méthode |
+|---|---|---|
+| Plus grands / plus de terrains côte à côte | ⚠️ Requête + tri manuel | Overpass sort la géométrie, mais ne calcule pas les surfaces ni ne détecte les regroupements — tri à faire après coup (tableur ou petit script) |
+| Plus isolés (loin de toute voirie) | ⚠️ Requête + calcul | Nécessite un calcul de distance à la route la plus proche (QGIS ou script Python + `shapely`) — pas natif dans Overpass |
+| Moins isolés (centre-ville) | ⚠️ Requête + calcul | Idem |
+| **Les "plus beaux"** (parc, Ravel, rivière, tourisme) | ✅ Requête directe | Filtre spatial `around:` vers `leisure=park`, `waterway=river`, `tourism=*`, réseaux cyclables/pédestres |
+| **Les mieux équipés** (éclairage, pique-nique, aire de jeux) | ✅ Requête directe | Tag `lit=yes` + proximité `leisure=playground` / `amenity=picnic_table` |
+| **Terrains qui portent un nom** | ✅ Requête directe | Filtre simple sur la présence du tag `name` |
+| **Près d'un bar (idéalement avec terrasse)** | ✅ Requête directe | Proximité `amenity=bar/pub` — ⚠️ la présence d'une terrasse est mal renseignée sur OSM, à vérifier sur place |
+| **Près d'une brasserie** | ✅ Requête directe | Proximité `craft=brewery` |
+| **Près d'un château ou d'une abbaye/monastère** | ✅ Requête directe | Proximité `historic=castle` / `historic=monastery` |
+| Terrains couverts strictement publics | ❌ Non exploitable actuellement | Testé : les seuls terrains `indoor=yes` trouvés en Belgique sont des clubs privés, aucun terrain couvert public identifiable sur OSM à ce jour |
+
+Autres pistes évoquées mais non explorées davantage : terrains en camping, près d'une piscine extérieure, en zone industrielle, multi-sports (tag `sport` combiné), en cimetière, avec revêtement inhabituel, tagués `access=private`.
+
+## Requêtes Overpass retenues (Liège, adaptables à toute la Belgique)
+
+Zone de référence utilisée : `area["name"="Liège"]["admin_level"="8"]["boundary"="administrative"]`
+(pour toute la Belgique : `area["ISO3166-1"="BE"]["admin_level"="2"]`)
+
+### 1. Les "plus beaux"
+```
+[out:json][timeout:60];
+area["name"="Liège"]["admin_level"="8"]["boundary"="administrative"]->.liege;
+nwr["leisure"="pitch"]["sport"~"petanque|boules"]["access"!="private"](area.liege)->.terrains;
+(
+  nwr(around.terrains:50)["leisure"="park"];
+  nwr(around.terrains:50)["waterway"="river"];
+  nwr(around.terrains:50)["tourism"];
+  nwr(around.terrains:50)["route"~"bicycle|foot"]["network"~"rcn|rwn|ncn|nwn"];
+)->.points_interet;
+nwr.terrains(around.points_interet:50);
+out center tags;
+```
+
+### 2. Les mieux équipés
+```
+[out:json][timeout:60];
+area["name"="Liège"]["admin_level"="8"]["boundary"="administrative"]->.liege;
+nwr["leisure"="pitch"]["sport"~"petanque|boules"]["access"!="private"](area.liege)->.terrains;
+(
+  nwr(around.terrains:30)["leisure"="playground"];
+  nwr(around.terrains:30)["amenity"="picnic_table"];
+)->.equipements;
+(
+  nwr.terrains["lit"="yes"];
+  nwr.terrains(around.equipements:30);
+);
+out center tags;
+```
+
+### 3. Terrains qui portent un nom
+```
+[out:json][timeout:60];
+area["name"="Liège"]["admin_level"="8"]["boundary"="administrative"]->.liege;
+nwr["leisure"="pitch"]["sport"~"petanque|boules"]["access"!="private"]["name"](area.liege);
+out center tags;
+```
+
+### 4. Près d'un bar
+```
+[out:json][timeout:60];
+area["name"="Liège"]["admin_level"="8"]["boundary"="administrative"]->.liege;
+nwr["leisure"="pitch"]["sport"~"petanque|boules"]["access"!="private"](area.liege)->.terrains;
+(
+  nwr(around.terrains:50)["amenity"~"bar|pub"];
+)->.bars;
+nwr.terrains(around.bars:50);
+out center tags;
+```
+
+### 5. Près d'une brasserie
+```
+[out:json][timeout:60];
+area["name"="Liège"]["admin_level"="8"]["boundary"="administrative"]->.liege;
+nwr["leisure"="pitch"]["sport"~"petanque|boules"]["access"!="private"](area.liege)->.terrains;
+nwr(around.terrains:150)["craft"="brewery"]->.brasseries;
+nwr.terrains(around.brasseries:150);
+out center tags;
+```
+
+### 6. Près d'un château ou d'une abbaye/monastère
+```
+[out:json][timeout:60];
+area["name"="Liège"]["admin_level"="8"]["boundary"="administrative"]->.liege;
+nwr["leisure"="pitch"]["sport"~"petanque|boules"]["access"!="private"](area.liege)->.terrains;
+(
+  nwr(around.terrains:200)["historic"="castle"];
+  nwr(around.terrains:200)["historic"="monastery"];
+)->.patrimoine;
+nwr.terrains(around.patrimoine:200);
+out center tags;
+```
+
+---
+
+## Terrains identifiés sur Liège
+Six terrains repérés, avec un itinéraire en boucle depuis le **Château de Fayenbois** (50.6315961, 5.6416968) :
+
+| # | Lieu | Coordonnées | Description |
+|---|---|---|---|
+| 1 | Grivegnée — square avec fontaine | 50.6182401, 5.6106787 | Terrain dans un square calme, nombreux bancs |
+| 2 | Grivegnée — nouveau terrain | 50.6215596, 5.5991553 | Petit square, plaine de jeux, fontaine d'eau potable |
+| 3 | Boulodrome d'Outremeuse | 50.6446584, 5.581959 | Deux terrains publics le long de la Meuse, à l'ombre des arbres |
+| 4 | Cointe — plaine des sports | 50.6217713, 5.5603485 | Près du parc communal (foot, athlétisme, streetworkout...) |
+| 5 | Angleur — parc du château de Péralta | 50.610604, 5.5859395 | En surplomb du parc, cafétéria du hall omnisport à proximité |
+| 6 | Chênée | 50.6097802, 5.6214508 | 2 terrains partiellement ombragés, parking et bancs |
+
+## Idées non testées, à explorer plus tard
+
+- Angle "brasserie + patrimoine" combiné pour un article dédié ("les terrains les plus insolites de Liège")
+- Élargir les 6 requêtes retenues à toute la Belgique (juste changer la zone de référence)
+- Pour les catégories "plus grands" / "plus/moins isolés" : passer par un export Overpass + tri dans un tableur, ou script Python avec `shapely` pour les calculs de distance/surface
+</file>
+
+<file path=".github/workflows/update-osm.yml">
+name: Mise à jour hebdomadaire des terrains OSM
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+
+  workflow_dispatch:
+  
+permissions:
+  contents: write
+  
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du projet
+        uses: actions/checkout@v4
+
+      - name: Installation de Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Installation des dépendances
+        run: |
+          pip install requests
+
+      - name: Mise à jour des terrains
+        run: |
+          python scripts/update_terrains.py
+
+      - name: Sauvegarde des changements
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+          git add data/terrains.geojson
+
+          git commit -m "Mise à jour quotidienne OSM" || exit 0
+
+          git push
+</file>
+
+<file path="scripts/update_terrains.py">
+import requests
+import json
+import time
+import sys
+import os
+
+OVERPASS_SERVERS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter"
+]
+
+QUERY = """
+[out:json][timeout:300];
+
+area["ISO3166-1"="BE"]["admin_level"="2"]->.belgique;
+
+(
+  nwr["leisure"="pitch"]["sport"="boules"](area.belgique);
+  nwr["leisure"="pitch"]["sport"="petanque"](area.belgique);
+);
+
+out center tags;
+"""
+
+# En-tête obligatoire pour Nominatim : doit identifier clairement l'application
+NOMINATIM_HEADERS = {
+    "User-Agent": "Mapetanque/1.0 (contact: mapetanque@outlook.be)"
+}
+
+
+# Seuil d'alerte : si le nombre de terrains chute de plus de X% par rapport à la
+# version précédente, on considère que les données sont probablement incomplètes
+# (ex. mirror Overpass en retard de réplication) et on refuse d'écraser le fichier.
+SEUIL_BAISSE_MAX = 0.05  # 5%
+
+CHEMIN_GEOJSON = "data/terrains.geojson"
+
+
+def recuperer_rue_proche(lat, lon):
+    """
+    Interroge Nominatim (géocodage inversé) pour trouver le nom de la rue,
+    place ou lieu le plus proche des coordonnées données.
+    Retourne None en cas d'échec ou d'absence de résultat exploitable.
+    """
+    try:
+        response = requests.get(
+            "https://nominatim.openstreetmap.org/reverse",
+            params={
+                "format": "jsonv2",
+                "lat": lat,
+                "lon": lon,
+                "zoom": 17,
+                "addressdetails": 1
+            },
+            headers=NOMINATIM_HEADERS,
+            timeout=10
+        )
+        response.raise_for_status()
+        data = response.json()
+        adresse = data.get("address", {})
+
+        return (
+            adresse.get("road")
+            or adresse.get("pedestrian")
+            or adresse.get("footway")
+            or adresse.get("path")
+            or adresse.get("square")
+            or adresse.get("residential")
+            or adresse.get("neighbourhood")
+            or adresse.get("suburb")
+            or adresse.get("hamlet")
+        )
+
+    except Exception as e:
+        print(f"    ⚠ Erreur géocodage ({lat:.5f}, {lon:.5f}) : {e}")
+        return None
+
+
+print("Interrogation d'OpenStreetMap en cours...")
+
+osm_data = None
+
+for server in OVERPASS_SERVERS:
+    try:
+        print(f"→ Tentative avec {server}")
+
+        response = requests.get(
+            server,
+            params={"data": QUERY},
+            headers={
+                "User-Agent": "Mapetanque/1.0"
+            },
+            timeout=300
+        )
+
+        response.raise_for_status()
+
+        osm_data = response.json()
+
+        print(f"✓ Réponse reçue depuis {server}")
+        break
+
+    except Exception as e:
+        print(f"✗ Échec avec {server} : {type(e).__name__} - {e}")
+        if 'response' in locals():
+            print(response.text[:500])
+
+else:
+    raise Exception("Tous les serveurs Overpass ont échoué")
+
+print(f"{len(osm_data['elements'])} objets reçus depuis OSM")
+
+features = []
+total = len(osm_data["elements"])
+
+for index, element in enumerate(osm_data["elements"], start=1):
+
+    # Coordonnées des points
+    if element["type"] == "node":
+        lat = element["lat"]
+        lon = element["lon"]
+
+    # Coordonnées des polygones convertis en centre
+    elif "center" in element:
+        lat = element["center"]["lat"]
+        lon = element["center"]["lon"]
+
+    else:
+        continue
+
+    print(f"[{index}/{total}] Recherche de la rue la plus proche...")
+
+    rue_proche = recuperer_rue_proche(lat, lon)
+
+    # Respect de la limite Nominatim : max. 1 requête par seconde
+    time.sleep(1)
+
+    proprietes = dict(element.get("tags", {}))
+    proprietes["nearest_street"] = rue_proche
+
+    features.append({
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [lon, lat]
+        },
+        "properties": proprietes
+    })
+
+
+def compter_terrains_precedents(chemin):
+    """
+    Lit le nombre de terrains présents dans la version actuelle du fichier,
+    pour pouvoir comparer avec la nouvelle collecte. Retourne None si le
+    fichier n'existe pas encore (premier lancement).
+    """
+    if not os.path.exists(chemin):
+        return None
+
+    try:
+        with open(chemin, "r", encoding="utf-8") as f:
+            ancien_geojson = json.load(f)
+        return len(ancien_geojson.get("features", []))
+    except Exception as e:
+        print(f"⚠ Impossible de lire l'ancien fichier ({e}), vérification ignorée.")
+        return None
+
+
+geojson = {
+    "type": "FeatureCollection",
+    "features": features
+}
+
+nombre_precedent = compter_terrains_precedents(CHEMIN_GEOJSON)
+nombre_actuel = len(features)
+
+if nombre_precedent is not None:
+
+    difference = nombre_actuel - nombre_precedent
+    variation_pct = (difference / nombre_precedent * 100) if nombre_precedent > 0 else 0
+
+    print(f"Comparaison : {nombre_precedent} terrains précédemment → {nombre_actuel} terrains cette fois "
+          f"({variation_pct:+.1f} %)")
+
+    baisse = -difference / nombre_precedent if nombre_precedent > 0 else 0
+
+    if baisse > SEUIL_BAISSE_MAX:
+        print(
+            f"🛑 ALERTE : baisse de {baisse * 100:.1f}% par rapport à la version précédente "
+            f"(seuil autorisé : {SEUIL_BAISSE_MAX * 100:.0f}%)."
+        )
+        print(
+            "Cette baisse anormale suggère des données incomplètes "
+            "(ex. mirror Overpass en retard de réplication) plutôt qu'une vraie disparition de terrains."
+        )
+        print("→ Le fichier n'a PAS été mis à jour, pour éviter de publier des données incomplètes.")
+        sys.exit(1)
+
+
+with open(CHEMIN_GEOJSON, "w", encoding="utf-8") as f:
+    json.dump(
+        geojson,
+        f,
+        ensure_ascii=False,
+        indent=2
+    )
+
+
+print(f"✓ {len(features)} terrains mis à jour")
+</file>
+
+<file path="translations.js">
+const translations = {
+
+    fr: {
+        html_lang: "fr",
+        tagline: "La carte des terrains de pétanque publics en Belgique",
+        footer_credit_prefix: "Données issues d'",
+
+        locate_btn: "Me localiser",
+        search_placeholder: "Adresse, ville, région...",
+        search_no_result: "Aucun résultat trouvé pour cette recherche.",
+        search_failed: "La recherche a échoué, réessayez dans un instant.",
+
+        open_menu: "Ouvrir le menu",
+        close_menu: "Fermer le menu",
+        close_panel: "Fermer",
+
+        share_site_btn: "📤 Partager",
+        share_site_title: "Partager Mapetanque",
+        share_terrain_title: "Partager ce terrain",
+        share_whatsapp: "WhatsApp",
+        share_facebook: "Facebook",
+        share_twitter: "X (Twitter)",
+        share_email: "E-mail",
+        share_copy: "Copier le lien",
+        share_copied: "Lien copié !",
+        popup_share: "Partager ce terrain",
+
+        menu_about: "À propos",
+        menu_contact: "Nous contacter",
+        menu_faq: "FAQ",
+
+        about_title: "À propos",
+        about_text: "Mapetanque est né de la constatation qu'il n'existait aucun site recensant de manière " +
+            "pratique et rapide les terrains de pétanque librement accessibles en Belgique. Le projet est " +
+            "actuellement en développement. L'objectif, à terme, est de proposer une plateforme communautaire " +
+            "permettant d'ajouter des photos, des informations pratiques et des avis utiles pour les joueurs.",
+
+        contact_title: "Nous contacter",
+        contact_text: "Vous avez une suggestion, vous souhaitez signaler une erreur ou participer au projet ? " +
+            "N'hésitez pas à me contacter.",
+        contact_email: "mapetanque@outlook.be",
+
+        faq_title: "FAQ",
+        faq_items: [
+            {
+                q: "D'où viennent les informations affichées sur la carte ?",
+                a: "Les terrains affichés proviennent des données libres d'OpenStreetMap. Mapetanque récupère " +
+                   "chaque lundi ces informations afin de proposer une carte actualisée des terrains de pétanque " +
+                   "en Belgique."
+            },
+            {
+                q: "Comment trouver un terrain près de moi ?",
+                a: "Cliquez sur le bouton \"📍 Me localiser\" pour afficher votre position et consulter les " +
+                   "terrains proches de vous."
+            },
+            {
+                q: "Puis-je ajouter une photo, un avis ou des informations pratiques ?",
+                a: "Cette fonctionnalité est envisagée pour une prochaine évolution de Mapetanque."
+            },
+            {
+                q: "Un terrain accessible au public près de chez moi n'apparaît pas sur la carte, que faire ?",
+                a: "Les terrains affichés sur Mapetanque proviennent des données libres d'OpenStreetMap. Comme " +
+                   "cette base est collaborative, certains terrains peuvent ne pas encore avoir été renseignés. " +
+                   "Si vous connaissez un terrain de pétanque accessible au public qui n'apparaît pas sur la " +
+                   "carte, vous pouvez : l'ajouter directement dans OpenStreetMap grâce à leur outil d'édition ; " +
+                   "ou nous envoyer les informations nécessaires par e-mail 📧 mapetanque@outlook.be " +
+                   "(localisation précise, nombre de pistes si connu, etc.). Après mise à jour des données " +
+                   "OpenStreetMap, le terrain apparaîtra automatiquement sur Mapetanque lors de la prochaine " +
+                   "synchronisation."
+            },
+            {
+                q: "Un terrain indiqué sur la carte n'existe plus ou n'est plus praticable, que faire ?",
+                a: "Les terrains affichés sur Mapetanque proviennent des données libres d'OpenStreetMap. Comme " +
+                   "cette base est collaborative, certaines informations peuvent être incomplètes ou ne plus " +
+                   "être à jour. Si un terrain n'existe plus ou n'est plus accessible au public, vous pouvez : " +
+                   "modifier directement l'information dans OpenStreetMap via leur outil d'édition ; ou nous " +
+                   "signaler l'erreur par e-mail 📧 mapetanque@outlook.be en précisant l'emplacement du terrain " +
+                   "et les informations utiles. Si le terrain existe toujours mais est simplement mal entretenu " +
+                   "ou dégradé, le mieux est de contacter la commune concernée (service des sports, travaux ou " +
+                   "espaces verts), qui est généralement responsable de l'entretien des équipements publics."
+            }
+        ],
+
+        popup_terrain_default: "Terrain de pétanque",
+        popup_terrain_prefix: "Terrain",
+        popup_access_label: "Accès",
+        popup_access_public: "public",
+        popup_access_probable: "probablement public",
+        popup_distance_label: "Distance",
+        popup_distance_hint: "Cliquez sur \"Me localiser\" pour voir la distance",
+        popup_itinerary: "Afficher l'itinéraire",
+        popup_here: "Vous êtes ici",
+        nearest_terrain_label: "Terrain le plus proche",
+
+        stats_loading: "Chargement des statistiques…",
+        stats_unavailable: "Statistiques indisponibles",
+        stats_count: (n) => `${n} terrain${n > 1 ? "s" : ""} recensé${n > 1 ? "s" : ""}`,
+        stats_last_update: "Dernière mise à jour",
+        date_locale: "fr-BE"
+    },
+
+    nl: {
+        html_lang: "nl",
+        tagline: "De kaart met openbare petanquebanen in België",
+        footer_credit_prefix: "Gegevens afkomstig van ",
+
+        locate_btn: "Localiseer mij",
+        search_placeholder: "Adres, stad, regio...",
+        search_no_result: "Geen resultaat gevonden voor deze zoekopdracht.",
+        search_failed: "De zoekopdracht is mislukt, probeer het straks opnieuw.",
+
+        open_menu: "Menu openen",
+        close_menu: "Menu sluiten",
+        close_panel: "Sluiten",
+
+        share_site_btn: "📤 Delen",
+        share_site_title: "Mapetanque delen",
+        share_terrain_title: "Dit terrein delen",
+        share_whatsapp: "WhatsApp",
+        share_facebook: "Facebook",
+        share_twitter: "X (Twitter)",
+        share_email: "E-mail",
+        share_copy: "Link kopiëren",
+        share_copied: "Link gekopieerd!",
+        popup_share: "Dit terrein delen",
+
+        menu_about: "Over ons",
+        menu_contact: "Contacteer ons",
+        menu_faq: "FAQ",
+
+        about_title: "Over ons",
+        about_text: "Mapetanque is ontstaan uit de vaststelling dat er geen enkele website bestond die op een " +
+            "praktische en snelle manier de vrij toegankelijke petanquebanen in België in kaart bracht. Het " +
+            "project is momenteel in ontwikkeling. Het doel is om op termijn een gemeenschapsplatform aan te " +
+            "bieden waarop foto's, praktische informatie en nuttige beoordelingen voor spelers kunnen worden " +
+            "toegevoegd.",
+
+        contact_title: "Contacteer ons",
+        contact_text: "Heb je een suggestie, wil je een fout melden of wil je meewerken aan het project? " +
+            "Aarzel niet om contact met mij op te nemen.",
+        contact_email: "mapetanque@outlook.be",
+
+        faq_title: "FAQ",
+        faq_items: [
+            {
+                q: "Waar komt de informatie op de kaart vandaan?",
+                a: "De weergegeven terreinen zijn afkomstig van de vrije gegevens van OpenStreetMap. Mapetanque " +
+                   "haalt deze informatie elke maandag op om een bijgewerkte kaart van de petanquebanen in " +
+                   "België aan te bieden."
+            },
+            {
+                q: "Hoe vind ik een terrein in mijn buurt?",
+                a: "Klik op de knop \"📍 Localiseer mij\" om je positie weer te geven en de terreinen in jouw " +
+                   "buurt te bekijken."
+            },
+            {
+                q: "Kan ik een foto, beoordeling of praktische informatie toevoegen?",
+                a: "Deze functie is gepland voor een toekomstige update van Mapetanque."
+            },
+            {
+                q: "Een openbaar toegankelijk terrein bij mij in de buurt staat niet op de kaart, wat kan ik doen?",
+                a: "De terreinen die op Mapetanque worden weergegeven, zijn afkomstig van de vrije gegevens van " +
+                   "OpenStreetMap. Aangezien deze database collaboratief is, zijn sommige terreinen mogelijk " +
+                   "nog niet geregistreerd. Als je een openbaar toegankelijke petanquebaan kent die niet op de " +
+                   "kaart verschijnt, kun je: het rechtstreeks toevoegen aan OpenStreetMap via hun " +
+                   "bewerkingstool; of ons de nodige informatie per e-mail bezorgen 📧 mapetanque@outlook.be " +
+                   "(precieze locatie, aantal banen indien bekend, enz.). Na bijwerking van de " +
+                   "OpenStreetMap-gegevens verschijnt het terrein automatisch op Mapetanque bij de volgende " +
+                   "synchronisatie."
+            },
+            {
+                q: "Een terrein op de kaart bestaat niet meer of is niet meer bruikbaar, wat kan ik doen?",
+                a: "De terreinen die op Mapetanque worden weergegeven, zijn afkomstig van de vrije gegevens van " +
+                   "OpenStreetMap. Aangezien deze database collaboratief is, kan sommige informatie onvolledig " +
+                   "of verouderd zijn. Als een terrein niet meer bestaat of niet meer openbaar toegankelijk is, " +
+                   "kun je: de informatie rechtstreeks aanpassen in OpenStreetMap via hun bewerkingstool; of de " +
+                   "fout aan ons melden per e-mail 📧 mapetanque@outlook.be met vermelding van de locatie van " +
+                   "het terrein en nuttige informatie. Als het terrein nog wel bestaat maar gewoon slecht " +
+                   "onderhouden of beschadigd is, neem je best contact op met de betrokken gemeente (dienst " +
+                   "sport, werken of groenvoorziening), die doorgaans verantwoordelijk is voor het onderhoud " +
+                   "van openbare voorzieningen."
+            }
+        ],
+
+        popup_terrain_default: "Petanquebaan",
+        popup_terrain_prefix: "Baan",
+        popup_access_label: "Toegang",
+        popup_access_public: "openbaar",
+        popup_access_probable: "waarschijnlijk openbaar",
+        popup_distance_label: "Afstand",
+        popup_distance_hint: "Klik op \"Localiseer mij\" om de afstand te zien",
+        popup_itinerary: "Route weergeven",
+        popup_here: "Je bent hier",
+        nearest_terrain_label: "Dichtstbijzijnde terrein",
+
+        stats_loading: "Statistieken laden…",
+        stats_unavailable: "Statistieken niet beschikbaar",
+        stats_count: (n) => `${n} terrein${n > 1 ? "en" : ""} geregistreerd`,
+        stats_last_update: "Laatste update",
+        date_locale: "nl-BE"
+    },
+
+    de: {
+        html_lang: "de",
+        tagline: "Die Karte der öffentlichen Pétanque-Plätze in Belgien",
+        footer_credit_prefix: "Daten von ",
+
+        locate_btn: "Meinen Standort finden",
+        search_placeholder: "Adresse, Stadt, Region...",
+        search_no_result: "Keine Ergebnisse für diese Suche gefunden.",
+        search_failed: "Die Suche ist fehlgeschlagen, bitte versuchen Sie es gleich noch einmal.",
+
+        open_menu: "Menü öffnen",
+        close_menu: "Menü schließen",
+        close_panel: "Schließen",
+
+        share_site_btn: "📤 Teilen",
+        share_site_title: "Mapetanque teilen",
+        share_terrain_title: "Diesen Platz teilen",
+        share_whatsapp: "WhatsApp",
+        share_facebook: "Facebook",
+        share_twitter: "X (Twitter)",
+        share_email: "E-Mail",
+        share_copy: "Link kopieren",
+        share_copied: "Link kopiert!",
+        popup_share: "Diesen Platz teilen",
+
+        menu_about: "Über uns",
+        menu_contact: "Kontakt",
+        menu_faq: "FAQ",
+
+        about_title: "Über uns",
+        about_text: "Mapetanque entstand aus der Feststellung, dass es keine Website gab, die schnell und " +
+            "übersichtlich die öffentlich zugänglichen Pétanque-Plätze in Belgien auflistet. Das Projekt " +
+            "befindet sich derzeit in der Entwicklung. Ziel ist es, langfristig eine Community-Plattform " +
+            "anzubieten, auf der Fotos, praktische Informationen und hilfreiche Bewertungen für Spieler " +
+            "hinzugefügt werden können.",
+
+        contact_title: "Kontakt",
+        contact_text: "Haben Sie einen Vorschlag, einen Fehler entdeckt oder möchten Sie am Projekt " +
+            "mitwirken? Zögern Sie nicht, mich zu kontaktieren.",
+        contact_email: "mapetanque@outlook.be",
+
+        faq_title: "FAQ",
+        faq_items: [
+            {
+                q: "Woher stammen die auf der Karte angezeigten Informationen?",
+                a: "Die angezeigten Plätze stammen aus den freien Daten von OpenStreetMap. Mapetanque ruft " +
+                   "diese Informationen jeden Montag ab, um eine aktualisierte Karte der Pétanque-Plätze in " +
+                   "Belgien anzubieten."
+            },
+            {
+                q: "Wie finde ich einen Platz in meiner Nähe?",
+                a: "Klicken Sie auf die Schaltfläche \"📍 Meinen Standort finden\", um Ihre Position " +
+                   "anzuzeigen und die Plätze in Ihrer Nähe zu sehen."
+            },
+            {
+                q: "Kann ich ein Foto, eine Bewertung oder praktische Informationen hinzufügen?",
+                a: "Diese Funktion ist für eine zukünftige Aktualisierung von Mapetanque geplant."
+            },
+            {
+                q: "Ein öffentlich zugänglicher Platz in meiner Nähe erscheint nicht auf der Karte, was kann ich tun?",
+                a: "Die auf Mapetanque angezeigten Plätze stammen aus den freien Daten von OpenStreetMap. Da " +
+                   "diese Datenbank kollaborativ ist, wurden manche Plätze möglicherweise noch nicht erfasst. " +
+                   "Wenn Sie einen öffentlich zugänglichen Pétanque-Platz kennen, der nicht auf der Karte " +
+                   "erscheint, können Sie: ihn direkt über das Bearbeitungswerkzeug zu OpenStreetMap " +
+                   "hinzufügen; oder uns die notwendigen Informationen per E-Mail zusenden " +
+                   "📧 mapetanque@outlook.be (genauer Standort, Anzahl der Bahnen, falls bekannt, usw.). " +
+                   "Nach der Aktualisierung der OpenStreetMap-Daten erscheint der Platz bei der nächsten " +
+                   "Synchronisierung automatisch auf Mapetanque."
+            },
+            {
+                q: "Ein auf der Karte angezeigter Platz existiert nicht mehr oder ist nicht mehr nutzbar, was kann ich tun?",
+                a: "Die auf Mapetanque angezeigten Plätze stammen aus den freien Daten von OpenStreetMap. Da " +
+                   "diese Datenbank kollaborativ ist, können manche Informationen unvollständig oder veraltet " +
+                   "sein. Wenn ein Platz nicht mehr existiert oder nicht mehr öffentlich zugänglich ist, " +
+                   "können Sie: die Information direkt über das Bearbeitungswerkzeug in OpenStreetMap ändern; " +
+                   "oder uns den Fehler per E-Mail melden 📧 mapetanque@outlook.be, mit Angabe des Standorts " +
+                   "des Platzes und nützlicher Informationen. Wenn der Platz noch existiert, aber lediglich " +
+                   "schlecht gepflegt oder beschädigt ist, wenden Sie sich am besten an die zuständige " +
+                   "Gemeinde (Sport-, Bau- oder Grünflächenamt), die in der Regel für die Instandhaltung " +
+                   "öffentlicher Einrichtungen zuständig ist."
+            }
+        ],
+
+        popup_terrain_default: "Pétanque-Platz",
+        popup_terrain_prefix: "Platz",
+        popup_access_label: "Zugang",
+        popup_access_public: "öffentlich",
+        popup_access_probable: "wahrscheinlich öffentlich",
+        popup_distance_label: "Entfernung",
+        popup_distance_hint: "Klicken Sie auf \"Meinen Standort finden\", um die Entfernung zu sehen",
+        popup_itinerary: "Route anzeigen",
+        popup_here: "Sie sind hier",
+        nearest_terrain_label: "Nächstgelegener Platz",
+
+        stats_loading: "Statistiken werden geladen…",
+        stats_unavailable: "Statistiken nicht verfügbar",
+        stats_count: (n) => `${n} ${n > 1 ? "Plätze" : "Platz"} erfasst`,
+        stats_last_update: "Letzte Aktualisierung",
+        date_locale: "de-BE"
+    }
+
+};
+</file>
+
+<file path="script.js">
+// ===================== Icônes SVG réutilisables (popups des terrains) =====================
+
+const ICON_PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
+const ICON_ROUTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>';
+const ICON_SHARE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>';
+const ICON_UNLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>';
+const ICON_MAP_PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
+const ICON_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+const ICON_MAIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>';
+
+// Icône des marqueurs de terrain sur la carte (pin vert personnalisé, remplace le pin bleu par défaut de Leaflet)
+const terrainMarkerIcon = L.divIcon({
+    className: 'terrain-marker-icon',
+    html: '<svg width="29" height="45" viewBox="0 0 29 45" xmlns="http://www.w3.org/2000/svg">' +
+          '<g transform="translate(2,2)">' +
+          '<path d="M12.5 0C5.6 0 0 5.6 0 12.5c0 9.4 12.5 28.5 12.5 28.5s12.5-19.1 12.5-28.5C25 5.6 19.4 0 12.5 0z" fill="#74C15A" stroke="white" stroke-width="2"/>' +
+          '<circle cx="12.5" cy="12.5" r="5" fill="white"/>' +
+          '</g>' +
+          '</svg>',
+    iconSize: [29, 45],
+    iconAnchor: [14, 43],
+    popupAnchor: [0, -36]
+});
+
+
+// ===================== Gestion de la langue =====================
+
+const LANGUES_DISPONIBLES = ['fr', 'nl', 'de'];
+
+function detecterLanguePreferee() {
+    const sauvegardee = localStorage.getItem('mapetanque_lang');
+    if (sauvegardee && LANGUES_DISPONIBLES.includes(sauvegardee)) {
+        return sauvegardee;
+    }
+
+    const navigateur = (navigator.language || 'fr').slice(0, 2).toLowerCase();
+    return LANGUES_DISPONIBLES.includes(navigateur) ? navigateur : 'fr';
+}
+
+let currentLang = detecterLanguePreferee();
+
+function t(cle) {
+    return translations[currentLang][cle];
+}
+
+// Piste du panneau d'info actuellement ouvert, pour le régénérer si la langue change
+let panneauOuvertActuel = null;
+
+function appliquerTraductions() {
+
+    const dict = translations[currentLang];
+
+    document.documentElement.lang = dict.html_lang;
+
+    // Textes simples
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        el.textContent = dict[el.dataset.i18n];
+    });
+
+    // Attributs aria-label
+    document.querySelectorAll('[data-i18n-aria]').forEach(function (el) {
+        el.setAttribute('aria-label', dict[el.dataset.i18nAria]);
+    });
+
+    // Attributs placeholder
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
+        el.setAttribute('placeholder', dict[el.dataset.i18nPlaceholder]);
+    });
+
+    // Titre + tagline
+    document.getElementById('tagline').textContent = dict.tagline;
+
+    // Crédit OpenStreetMap dans le footer
+    document.getElementById('footer-credit-prefix').textContent = dict.footer_credit_prefix;
+
+    // Bouton actif dans le sélecteur de langue
+    document.querySelectorAll('.lang-btn').forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.lang === currentLang);
+    });
+
+    // Régénérer le contenu du panneau d'info s'il est ouvert
+    if (panneauOuvertActuel) {
+        ouvrirPanneauInfo(panneauOuvertActuel);
+    }
+
+    // Régénérer les statistiques du footer
+    mettreAJourStats();
+
+    // Actualiser les liens de partage du site dans le footer (texte traduit)
+    if (typeof actualiserLiensPartageFooter === 'function') {
+        actualiserLiensPartageFooter();
+    }
+
+    // Régénérer le titre par défaut d'un éventuel marqueur de recherche déjà ouvert
+    if (typeof searchMarker !== 'undefined' && searchMarker && searchMarker.isPopupOpen()) {
+        searchMarker.getPopup().setContent(searchMarker._displayName || '');
+    }
+}
+
+function changerLangue(langue) {
+    if (!LANGUES_DISPONIBLES.includes(langue)) return;
+    currentLang = langue;
+    localStorage.setItem('mapetanque_lang', langue);
+    appliquerTraductions();
+}
+
+document.querySelectorAll('.lang-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        changerLangue(btn.dataset.lang);
+    });
+});
+
+
+// ===================== Carte =====================
+
+// Création de la carte centrée sur la Belgique
+const map = L.map('map').setView([50.8503, 4.3517], 8);
+
+let userPosition = null;
+
+// Fond OpenStreetMap
+const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+});
+
+// Fond satellite
+const satellite = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    {
+        attribution: 'Tiles &copy; Esri'
+    }
+);
+
+// Afficher OpenStreetMap par défaut
+osm.addTo(map);
+
+// Sélecteur de couches
+const baseMaps = {
+    "🗺️ Plan": osm,
+    "🛰️ Satellite": satellite
+};
+
+L.control.layers(baseMaps).addTo(map);
+
+// Sécurité : recalcule la taille de la carte une fois la page pleinement chargée
+window.addEventListener('load', function () {
+    map.invalidateSize();
+});
+
+
+// ===================== Flèche vers le terrain le plus proche (hors écran) =====================
+
+// Liste plate de tous les terrains (indépendante des clusters), pour un calcul rapide du plus proche
+let listeTousLesTerrains = [];
+let terrainLePlusProche = null;
+
+// Élément de la flèche, créé dynamiquement et ajouté à l'intérieur du conteneur de la carte
+const flecheProche = document.createElement('div');
+flecheProche.id = 'nearest-terrain-arrow';
+flecheProche.className = 'nearest-arrow';
+flecheProche.style.display = 'none';
+flecheProche.innerHTML =
+    '<span class="nearest-arrow-icon">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+    '<line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline>' +
+    '</svg></span>' +
+    '<span class="nearest-arrow-label" data-i18n="nearest_terrain_label">Terrain le plus proche</span>';
+document.getElementById('map').appendChild(flecheProche);
+
+function trouverTerrainLePlusProche(lat, lon) {
+    let plusProche = null;
+    let distanceMin = Infinity;
+
+    listeTousLesTerrains.forEach(function (t) {
+        const d = calculDistance(lat, lon, t.lat, t.lon);
+        if (d < distanceMin) {
+            distanceMin = d;
+            plusProche = t;
+        }
+    });
+
+    return plusProche;
+}
+
+function mettreAJourFlecheTerrainProche() {
+
+    if (!userPosition || !terrainLePlusProche) {
+        flecheProche.style.display = 'none';
+        return;
+    }
+
+    const latlngCible = L.latLng(terrainLePlusProche.lat, terrainLePlusProche.lon);
+
+    // Le terrain le plus proche est déjà visible à l'écran : pas besoin de flèche
+    if (map.getBounds().contains(latlngCible)) {
+        flecheProche.style.display = 'none';
+        return;
+    }
+
+    const tailleCarte = map.getSize();
+    const centre = { x: tailleCarte.x / 2, y: tailleCarte.y / 2 };
+    const pointCible = map.latLngToContainerPoint(latlngCible);
+
+    const dx = pointCible.x - centre.x;
+    const dy = pointCible.y - centre.y;
+
+    // Position de la flèche sur le bord de la carte, en direction de la cible
+    const marge = 55;
+    const halfW = tailleCarte.x / 2 - marge;
+    const halfH = tailleCarte.y / 2 - marge;
+
+    let echelle;
+    if (dx === 0) {
+        echelle = halfH / Math.abs(dy);
+    } else if (dy === 0) {
+        echelle = halfW / Math.abs(dx);
+    } else {
+        echelle = Math.min(halfW / Math.abs(dx), halfH / Math.abs(dy));
+    }
+
+    const pointBord = {
+        x: centre.x + dx * echelle,
+        y: centre.y + dy * echelle
+    };
+
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+    flecheProche.style.left = pointBord.x + 'px';
+    flecheProche.style.top = pointBord.y + 'px';
+    flecheProche.querySelector('.nearest-arrow-icon').style.transform = 'rotate(' + angle + 'deg)';
+    flecheProche.style.display = 'flex';
+}
+
+// Recalcule la position/visibilité de la flèche à chaque déplacement ou zoom de la carte
+map.on('move zoomend', mettreAJourFlecheTerrainProche);
+
+// Cliquer sur la flèche centre directement la carte sur le terrain visé
+flecheProche.addEventListener('click', function () {
+    if (terrainLePlusProche) {
+        map.setView([terrainLePlusProche.lat, terrainLePlusProche.lon], 17);
+    }
+});
+
+// Appelé à chaque nouvelle localisation (géolocalisation ou recherche d'adresse)
+function definirPositionUtilisateur(lat, lon) {
+    userPosition = [lat, lon];
+    terrainLePlusProche = trouverTerrainLePlusProche(lat, lon);
+    mettreAJourFlecheTerrainProche();
+}
+
+// Icône réutilisée pour marquer une position (localisation ou résultat de recherche)
+const positionIcon = L.divIcon({
+    className: 'user-location',
+    html: '<div></div>',
+    iconSize: [20, 20]
+});
+
+
+// ===================== Géolocalisation =====================
+
+document.getElementById("locateBtn").addEventListener("click", function () {
+
+    if (navigator.geolocation) {
+
+        navigator.geolocation.getCurrentPosition(function(position) {
+
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+
+            definirPositionUtilisateur(lat, lon);
+
+            map.setView([lat, lon], 15);
+
+            L.marker([lat, lon], {
+                icon: positionIcon
+            })
+            .addTo(map)
+            .bindPopup(function () { return t('popup_here'); })
+            .openPopup();
+
+        }, function() {
+            alert("Impossible de récupérer votre position.");
+        });
+
+    } else {
+        alert("La géolocalisation n'est pas supportée par votre navigateur.");
+    }
+
+});
+
+
+// ===================== Recherche d'adresse =====================
+
+let searchMarker = null;
+
+document.getElementById('searchForm').addEventListener('submit', function (e) {
+
+    e.preventDefault();
+
+    const input = document.getElementById('searchInput');
+    const errorEl = document.getElementById('searchError');
+    const query = input.value.trim();
+
+    errorEl.textContent = '';
+
+    if (!query) return;
+
+    // Recherche biaisée vers la Belgique (sans l'exclure strictement, utile pour les communes frontalières)
+    const url = 'https://nominatim.openstreetmap.org/search'
+        + '?format=jsonv2'
+        + '&q=' + encodeURIComponent(query)
+        + '&limit=1'
+        + '&viewbox=2.5,51.6,6.5,49.4'
+        + '&bounded=0';
+
+    fetch(url)
+        .then(function (response) {
+            if (!response.ok) throw new Error('Réponse Nominatim invalide');
+            return response.json();
+        })
+        .then(function (resultats) {
+
+            if (!resultats || resultats.length === 0) {
+                errorEl.textContent = t('search_no_result');
+                return;
+            }
+
+            const resultat = resultats[0];
+            const lat = parseFloat(resultat.lat);
+            const lon = parseFloat(resultat.lon);
+
+            // Le point trouvé devient la référence pour le calcul de distance dans les popups des terrains
+            definirPositionUtilisateur(lat, lon);
+
+            // Zoom adapté à la nature du résultat (adresse précise, ville, région...)
+            if (resultat.boundingbox) {
+                const bbox = resultat.boundingbox.map(parseFloat);
+                map.fitBounds([
+                    [bbox[0], bbox[2]],
+                    [bbox[1], bbox[3]]
+                ]);
+            } else {
+                map.setView([lat, lon], 15);
+            }
+
+            if (searchMarker) {
+                map.removeLayer(searchMarker);
+            }
+
+            searchMarker = L.marker([lat, lon], { icon: positionIcon })
+                .addTo(map)
+                .bindPopup(resultat.display_name)
+                .openPopup();
+
+            searchMarker._displayName = resultat.display_name;
+
+        })
+        .catch(function () {
+            errorEl.textContent = t('search_failed');
+        });
+
+});
+
+
+// ===================== Partage (site ou terrain précis) =====================
+
+const sharePanel = document.getElementById('share-panel');
+const shareOverlay = document.getElementById('share-overlay');
+const shareTitleEl = document.getElementById('share-title');
+const shareWhatsapp = document.getElementById('share-whatsapp');
+const shareFacebook = document.getElementById('share-facebook');
+const shareTwitter = document.getElementById('share-twitter');
+const shareEmail = document.getElementById('share-email');
+const shareCopyBtn = document.getElementById('share-copy');
+const shareCopyLabel = document.getElementById('share-copy-label');
+
+function ouvrirPartage(url, titre) {
+
+    shareTitleEl.textContent = titre;
+
+    const urlEncodee = encodeURIComponent(url);
+    const texteEncode = encodeURIComponent(titre);
+
+    shareWhatsapp.href = `https://wa.me/?text=${texteEncode}%20${urlEncodee}`;
+    shareFacebook.href = `https://www.facebook.com/sharer/sharer.php?u=${urlEncodee}`;
+    shareTwitter.href = `https://twitter.com/intent/tweet?url=${urlEncodee}&text=${texteEncode}`;
+    shareEmail.href = `mailto:?subject=${texteEncode}&body=${urlEncodee}`;
+
+    // Réinitialiser le libellé du bouton copier (au cas où il affichait "Lien copié !")
+    shareCopyLabel.textContent = t('share_copy');
+    shareCopyBtn.dataset.url = url;
+
+    sharePanel.classList.add('open');
+    shareOverlay.classList.add('visible');
+}
+
+function fermerPartage() {
+    sharePanel.classList.remove('open');
+    shareOverlay.classList.remove('visible');
+}
+
+document.getElementById('share-close').addEventListener('click', fermerPartage);
+shareOverlay.addEventListener('click', fermerPartage);
+
+shareCopyBtn.addEventListener('click', function () {
+    const url = shareCopyBtn.dataset.url || window.location.href;
+
+    navigator.clipboard.writeText(url).then(function () {
+        shareCopyLabel.textContent = t('share_copied');
+    }).catch(function () {
+        // Navigateur trop ancien ou contexte non sécurisé : on sélectionne le texte via un prompt de secours
+        window.prompt('Ctrl+C / Cmd+C :', url);
+    });
+});
+
+// Fonction globale appelée depuis le lien "Partager" de chaque popup de terrain
+window.partagerTerrain = function (lat, lon, titre) {
+    const url = window.location.origin + window.location.pathname
+        + `?lat=${lat.toFixed(6)}&lon=${lon.toFixed(6)}&z=18`;
+    ouvrirPartage(url, titre);
+};
+
+
+// ===================== Icônes de partage du site (footer) =====================
+
+const footerShareWhatsapp = document.getElementById('footer-share-whatsapp');
+const footerShareFacebook = document.getElementById('footer-share-facebook');
+const footerShareTwitter = document.getElementById('footer-share-twitter');
+const footerShareEmail = document.getElementById('footer-share-email');
+const footerShareCopy = document.getElementById('footer-share-copy');
+
+function actualiserLiensPartageFooter() {
+
+    const url = window.location.origin + window.location.pathname;
+    const urlEncodee = encodeURIComponent(url);
+    const texteEncode = encodeURIComponent(t('share_site_title'));
+
+    footerShareWhatsapp.href = `https://wa.me/?text=${texteEncode}%20${urlEncodee}`;
+    footerShareFacebook.href = `https://www.facebook.com/sharer/sharer.php?u=${urlEncodee}`;
+    footerShareTwitter.href = `https://twitter.com/intent/tweet?url=${urlEncodee}&text=${texteEncode}`;
+    footerShareEmail.href = `mailto:?subject=${texteEncode}&body=${urlEncodee}`;
+}
+
+const copyTooltip = document.getElementById('copy-tooltip');
+let copyTooltipTimeout = null;
+
+footerShareCopy.addEventListener('click', function () {
+
+    const url = window.location.origin + window.location.pathname;
+
+    navigator.clipboard.writeText(url).then(function () {
+        footerShareCopy.classList.add('footer-share-copied');
+
+        copyTooltip.textContent = t('share_copied');
+        copyTooltip.classList.add('visible');
+
+        clearTimeout(copyTooltipTimeout);
+        copyTooltipTimeout = setTimeout(function () {
+            footerShareCopy.classList.remove('footer-share-copied');
+            copyTooltip.classList.remove('visible');
+        }, 2000);
+
+    }).catch(function () {
+        // Navigateur trop ancien ou contexte non sécurisé : on sélectionne le texte via un prompt de secours
+        window.prompt('Ctrl+C / Cmd+C :', url);
+    });
+});
+
+
+// ===================== Calcul de distance =====================
+
+function calculDistance(lat1, lon1, lat2, lon2) {
+
+    const R = 6371; // rayon de la Terre en km
+
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+
+    const a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon/2) *
+        Math.sin(dLon/2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return R * c;
+}
+
+
+// ===================== Chargement des terrains =====================
+
+const markers = L.markerClusterGroup({
+    disableClusteringAtZoom: 16
+});
+
+fetch('data/terrains.geojson')
+    .then(response => response.json())
+    .then(data => {
+
+        // Nombre de terrains recensés (pour le footer)
+        afficherNombreTerrains(data.features.length);
+
+        // Liste plate de tous les terrains, pour le calcul du plus proche (flèche hors écran)
+        listeTousLesTerrains = data.features.map(function (feature) {
+            return {
+                lat: feature.geometry.coordinates[1],
+                lon: feature.geometry.coordinates[0]
+            };
+        });
+
+        L.geoJSON(data, {
+
+            pointToLayer: function(feature, latlng) {
+
+                return L.marker(latlng, { icon: terrainMarkerIcon });
+
+            },
+
+            onEachFeature: function(feature, layer) {
+
+                let tags = feature.properties;
+
+                function genererContenuPopup() {
+
+                    let acces = (tags.access === "public" || tags.access === "yes")
+                        ? t('popup_access_public')
+                        : t('popup_access_probable');
+
+                    let titre = tags.nearest_street
+                        ? t('popup_terrain_prefix') + " " + tags.nearest_street
+                        : t('popup_terrain_default');
+
+                    let distance = "";
+
+                    if (userPosition) {
+
+                        let terrainLat = layer.getLatLng().lat;
+                        let terrainLon = layer.getLatLng().lng;
+
+                        let km = calculDistance(
+                            userPosition[0],
+                            userPosition[1],
+                            terrainLat,
+                            terrainLon
+                        );
+
+                        let valeurDistance = km < 1
+                            ? `${Math.round(km * 1000)} m`
+                            : `${km.toFixed(1)} km`;
+
+                        distance = `<br><span class="popup-icon">${ICON_PIN}</span> ${t('popup_distance_label')} : ${valeurDistance}`;
+
+                    } else {
+
+                        distance = `<br><span class="popup-icon">${ICON_PIN}</span> ${t('popup_distance_hint')}`;
+
+                    }
+
+                    let terrainLat = layer.getLatLng().lat;
+                    let terrainLon = layer.getLatLng().lng;
+
+                    let itineraire = `
+                    <br><br>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${terrainLat},${terrainLon}" target="_blank">
+                    <span class="popup-link-icon">${ICON_ROUTE}</span> <span class="popup-link-text">${t('popup_itinerary')}</span>
+                    </a>
+                    `;
+
+                    let partager = `
+                    <br>
+                    <a href="#" class="popup-share-btn">
+                    <span class="popup-link-icon">${ICON_SHARE}</span> <span class="popup-link-text">${t('popup_share')}</span>
+                    </a>
+                    `;
+
+                    return `
+                    <b>${titre}</b><br><br>
+                    <span class="popup-icon">${ICON_UNLOCK}</span> ${t('popup_access_label')} : ${acces}
+                    ${distance}
+                    ${itineraire}
+                    ${partager}
+                    `;
+
+                }
+
+                layer.bindPopup(genererContenuPopup);
+
+                // Bouton "Partager" du popup : branché à chaque ouverture pour éviter
+                // tout souci d'échappement de caractères spéciaux dans le nom de rue
+                layer.on('popupopen', function (e) {
+                    const boutonPartage = e.popup.getElement().querySelector('.popup-share-btn');
+                    if (!boutonPartage) return;
+
+                    boutonPartage.onclick = function (evt) {
+                        evt.preventDefault();
+
+                        const titreActuel = tags.nearest_street
+                            ? t('popup_terrain_prefix') + " " + tags.nearest_street
+                            : t('popup_terrain_default');
+
+                        window.partagerTerrain(layer.getLatLng().lat, layer.getLatLng().lng, titreActuel);
+                    };
+                });
+
+            }
+
+        }).addTo(markers);
+
+        map.addLayer(markers);
+
+        // Lien de partage d'un terrain précis (?lat=...&lon=...) : centrer et ouvrir son popup
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramLat = parseFloat(urlParams.get('lat'));
+        const paramLon = parseFloat(urlParams.get('lon'));
+
+        if (!isNaN(paramLat) && !isNaN(paramLon)) {
+
+            let layerCorrespondant = null;
+
+            markers.eachLayer(function (layer) {
+                if (layerCorrespondant) return;
+                const pos = layer.getLatLng();
+                if (Math.abs(pos.lat - paramLat) < 0.0001 && Math.abs(pos.lng - paramLon) < 0.0001) {
+                    layerCorrespondant = layer;
+                }
+            });
+
+            if (layerCorrespondant) {
+                markers.zoomToShowLayer(layerCorrespondant, function () {
+                    layerCorrespondant.openPopup();
+                });
+            } else {
+                // Terrain introuvable (peut-être retiré depuis) : on centre quand même sur les coordonnées
+                map.setView([paramLat, paramLon], 18);
+            }
+        }
+
+    });
+
+
+// ===================== Menu burger =====================
+
+const menuButton = document.getElementById("menu-button");
+const sideMenu = document.getElementById("side-menu");
+const closeMenu = document.getElementById("close-menu");
+const menuOverlay = document.getElementById("menu-overlay");
+
+menuButton.addEventListener("click", function () {
+    sideMenu.classList.add("open");
+    menuOverlay.classList.add("visible");
+});
+
+closeMenu.addEventListener("click", function () {
+    sideMenu.classList.remove("open");
+    menuOverlay.classList.remove("visible");
+});
+
+menuOverlay.addEventListener("click", function () {
+    sideMenu.classList.remove("open");
+    menuOverlay.classList.remove("visible");
+});
+
+
+// ===================== Panneau d'info (À propos / Contact / FAQ) =====================
+
+const infoPanel = document.getElementById("info-panel");
+const infoContent = document.getElementById("info-content");
+const infoOverlay = document.getElementById("info-overlay");
+const closeInfo = document.getElementById("close-info");
+const infoNavLinks = document.querySelectorAll('.info-nav-link');
+
+function construireContenuAbout(dict) {
+    const p = document.createElement('p');
+    p.textContent = dict.about_text;
+
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(p);
+    return fragment;
+}
+
+function construireContenuContact(dict) {
+    const p = document.createElement('p');
+    p.textContent = dict.contact_text + " ";
+
+    const icone = document.createElement('span');
+    icone.className = 'popup-icon';
+    icone.innerHTML = ICON_MAIL;
+    p.appendChild(icone);
+    p.appendChild(document.createTextNode(' '));
+
+    const lien = document.createElement('a');
+    lien.href = "mailto:" + dict.contact_email;
+    lien.textContent = dict.contact_email;
+    p.appendChild(lien);
+
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(p);
+    return fragment;
+}
+
+function construireContenuFaq(dict) {
+    const fragment = document.createDocumentFragment();
+
+    dict.faq_items.forEach(function (item) {
+        const details = document.createElement('details');
+        details.className = 'faq-item';
+
+        const summary = document.createElement('summary');
+        summary.textContent = item.q;
+
+        const p = document.createElement('p');
+        // Remplace l'emoji 📧 par l'icône SVG cohérente avec le reste du site
+        p.innerHTML = item.a
+            .split('📧')
+            .join('<span class="popup-icon">' + ICON_MAIL + '</span>');
+
+        details.appendChild(summary);
+        details.appendChild(p);
+        fragment.appendChild(details);
+    });
+
+    return fragment;
+}
+
+function ouvrirPanneauInfo(targetId) {
+
+    const dict = translations[currentLang];
+
+    infoContent.innerHTML = "";
+
+    if (targetId === 'about') {
+        infoContent.appendChild(construireContenuAbout(dict));
+    } else if (targetId === 'contact') {
+        infoContent.appendChild(construireContenuContact(dict));
+    } else if (targetId === 'faq') {
+        infoContent.appendChild(construireContenuFaq(dict));
+    } else {
+        return;
+    }
+
+    panneauOuvertActuel = targetId;
+
+    // Mettre en évidence l'onglet correspondant dans la mini-navigation
+    infoNavLinks.forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.target === targetId);
+    });
+
+    infoPanel.classList.add("open");
+    infoOverlay.classList.add("visible");
+}
+
+function fermerPanneauInfo() {
+    infoPanel.classList.remove("open");
+    infoOverlay.classList.remove("visible");
+    panneauOuvertActuel = null;
+}
+
+document.querySelectorAll('#side-menu a').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        // Fermer le menu burger
+        sideMenu.classList.remove('open');
+        menuOverlay.classList.remove('visible');
+
+        // Ouvrir le panneau avec le contenu correspondant
+        const targetId = this.getAttribute('href').replace('#', '');
+        ouvrirPanneauInfo(targetId);
+    });
+});
+
+// Navigation desktop (barre du header) : ouvre directement le panneau d'info
+document.querySelectorAll('.info-nav-trigger').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        ouvrirPanneauInfo(btn.dataset.target);
+    });
+});
+
+// Mini-navigation en haut du panneau : change de contenu sans le fermer
+infoNavLinks.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        ouvrirPanneauInfo(btn.dataset.target);
+    });
+});
+
+closeInfo.addEventListener('click', fermerPanneauInfo);
+infoOverlay.addEventListener('click', fermerPanneauInfo);
+
+
+// ===================== Statistiques du footer =====================
+
+let terrainsCount = null;
+let lastUpdateRaw = null; // objet Date brut, reformaté selon la langue active
+let comptageTermine = false;
+let dateTermine = false;
+
+function mettreAJourStats() {
+    const statsEl = document.getElementById('site-stats');
+    if (!statsEl) return;
+
+    let parts = [];
+
+    if (terrainsCount !== null) {
+        parts.push(`<span class="footer-stats-icon">${ICON_MAP_PIN}</span> ${t('stats_count')(terrainsCount)}`);
+    }
+
+    if (lastUpdateRaw !== null) {
+        const dateFormatee = lastUpdateRaw.toLocaleDateString(t('date_locale'), {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        parts.push(`<span class="footer-stats-icon">${ICON_CLOCK}</span> ${t('stats_last_update')} : ${dateFormatee}`);
+    }
+
+    if (parts.length > 0) {
+        statsEl.innerHTML = parts.join(' · ');
+    } else if (!comptageTermine && !dateTermine) {
+        statsEl.textContent = t('stats_loading');
+    } else {
+        statsEl.textContent = t('stats_unavailable');
+    }
+}
+
+function afficherNombreTerrains(count) {
+    terrainsCount = count;
+    comptageTermine = true;
+    mettreAJourStats();
+}
+
+// Date du dernier commit ayant modifié terrains.geojson, via l'API GitHub
+fetch('https://api.github.com/repos/mapetanque/mapetanque.github.io/commits?path=data/terrains.geojson&page=1&per_page=1')
+    .then(function (response) {
+        if (!response.ok) throw new Error('Réponse API GitHub invalide');
+        return response.json();
+    })
+    .then(function (commits) {
+        if (commits.length > 0) {
+            lastUpdateRaw = new Date(commits[0].commit.author.date);
+        }
+        dateTermine = true;
+        mettreAJourStats();
+    })
+    .catch(function () {
+        dateTermine = true;
+        mettreAJourStats();
+    });
+
+
+// ===================== Initialisation =====================
+
+appliquerTraductions();
+</file>
+
+<file path="style.css">
+html, body {
+    overflow-x: hidden;
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#map {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 300px;
+}
+
+/* Flèche indiquant la direction du terrain le plus proche, quand aucun n'est visible à l'écran */
+.nearest-arrow {
+    position: absolute;
+    z-index: 900;
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    background: #74C15A;
+    color: white;
+    padding: 8px 14px 8px 10px;
+    border-radius: 20px;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.nearest-arrow-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease;
+}
+
+.nearest-arrow-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+@media (max-width: 600px) {
+    .nearest-arrow-label {
+        display: none;
+    }
+
+    .nearest-arrow {
+        padding: 10px;
+        border-radius: 50%;
+    }
+}
+
+/* En-tête : grille à 3 colonnes symétriques (langue | titre | nav) en desktop, empilée sur mobile.
+   La grille garantit un centrage réel du titre, même si langue et nav n'ont pas la même largeur. */
+.header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 30px;
+    flex: 0 0 auto;
+}
+
+/* Sélecteur de langue : intégré dans la barre en desktop */
+#lang-switcher {
+    justify-self: start;
+    display: flex;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+
+.lang-btn {
+    border: none;
+    background: none;
+    padding: 9px 13px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #777;
+    cursor: pointer;
+}
+
+.lang-btn:hover {
+    background: #f0f0f0;
+}
+
+.lang-btn.active {
+    background: #74C15A;
+    color: white;
+}
+
+.header-title-block {
+    justify-self: center;
+    text-align: center;
+    min-width: 0;
+}
+
+h1, h2, h3 {
+    font-family: 'Quicksand', Arial, sans-serif;
+}
+
+h1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 28px;
+    margin: 0;
+    flex-wrap: wrap;
+}
+
+.logo {
+    height: 1.8em;
+    width: auto;
+    display: block;
+}
+
+.tagline {
+    text-align: center;
+    margin: 2px 0 0;
+    color: #555;
+    font-size: 13px;
+}
+
+/* Navigation desktop : liens directs vers le panneau d'info */
+#desktop-nav {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.info-nav-trigger {
+    border: none;
+    background: none;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #444;
+    cursor: pointer;
+    border-radius: 20px;
+    white-space: nowrap;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.info-nav-trigger:hover {
+    background: rgba(116, 193, 90, 0.1);
+    color: #74C15A;
+}
+
+/* Menu burger : masqué en desktop, réservé au mobile */
+#menu-button {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+
+    .header {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        /* Réserve l'espace des boutons flottants (langue + menu) au-dessus du titre,
+           pour que le texte passe toujours SOUS eux plutôt qu'à côté */
+        padding: 56px 15px 10px;
+    }
+
+    #lang-switcher {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        z-index: 1000;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+
+    .lang-btn {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    h1 {
+        font-size: 23px;
+    }
+
+    .tagline {
+        font-size: 12px;
+    }
+
+    /* La navigation desktop cède la place au menu burger */
+    #desktop-nav {
+        display: none;
+    }
+
+    #menu-button {
+        display: block;
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        z-index: 1000;
+
+        width: 45px;
+        height: 45px;
+
+        border: none;
+        border-radius: 50%;
+        background: white;
+        font-size: 26px;
+        cursor: pointer;
+
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+}
+
+.subtitle {
+    text-align: center;
+}
+
+/* Jeu de mots Map + (p)étanque dans le titre */
+.brand-map {
+    font-weight: 700;
+    color: #74C15A;
+}
+
+/* Bouton de localisation */
+#locateBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px auto;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    background-color: #74C15A;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#locateBtn .btn-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+#locateBtn:hover {
+    background-color: #56A03D;
+}
+
+/* Barre de contrôles : bouton localiser + recherche d'adresse */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+    margin: 10px auto;
+    padding: 0 15px;
+}
+
+.controls #locateBtn {
+    margin: 0;
+}
+
+.search-form {
+    display: flex;
+    gap: 6px;
+}
+
+.search-form input {
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 15px;
+    width: 240px;
+    max-width: 60vw;
+}
+
+.search-form input:focus {
+    outline: none;
+    border-color: #74C15A;
+}
+
+.search-form button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    background-color: #74C15A;
+    color: white;
+    cursor: pointer;
+}
+
+.search-form button svg {
+    width: 18px;
+    height: 18px;
+}
+
+.search-form button:hover {
+    background-color: #56A03D;
+}
+
+.search-error {
+    text-align: center;
+    color: #c62828;
+    font-size: 14px;
+    margin: 0 0 8px;
+    min-height: 18px;
+    flex: 0 0 auto;
+}
+
+@media (max-width: 600px) {
+    .search-form input {
+        width: 180px;
+        max-width: 55vw;
+    }
+}
+
+/* Panneau de partage (modal centré) */
+#share-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 1400;
+}
+
+#share-overlay.visible {
+    display: block;
+}
+
+#share-panel {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1450;
+
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    padding: 25px;
+    width: 300px;
+    max-width: 85vw;
+}
+
+#share-panel.open {
+    display: block;
+}
+
+#share-close {
+    float: right;
+    border: none;
+    background: none;
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.share-title {
+    font-weight: bold;
+    font-size: 16px;
+    margin: 0 0 18px;
+    clear: both;
+    padding-top: 4px;
+}
+
+.share-links {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.share-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 8px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    font-size: 15px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.share-link:hover {
+    background: #f0f4f9;
+}
+
+.share-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    color: #555;
+}
+
+.share-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Liens dans les popups de terrain (itinéraire, partager) :
+   seul le texte est souligné, pas l'icône ni l'espace qui le sépare du texte */
+.leaflet-popup-content a {
+    text-decoration: none;
+}
+
+.popup-link-text {
+    text-decoration: underline;
+}
+
+/* Icônes SVG dans les popups de terrain (accès, distance, itinéraire, partager) */
+.popup-icon,
+.popup-link-icon {
+    display: inline-flex;
+    vertical-align: middle;
+    color: #666;
+}
+
+.popup-icon svg,
+.popup-link-icon svg {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+}
+
+.popup-link-icon {
+    color: #74C15A;
+}
+
+/* Marqueur de position utilisateur */
+/* Marqueur de terrain (pin vert) : ombre portée pour se détacher de tous les fonds de carte */
+.terrain-marker-icon {
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
+}
+
+.user-location {
+    background: transparent;
+    border: none;
+}
+
+.user-location div {
+    width: 18px;
+    height: 18px;
+    background: #1976d2;
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(0,0,0,0.4);
+}
+
+/* Menu latéral */
+#side-menu {
+    position: fixed;
+    top: 0;
+    right: -300px;
+
+    width: 280px;
+    height: 100%;
+    box-sizing: border-box;
+
+    background: white;
+    z-index: 1200;
+
+    padding: 25px;
+
+    transition: right 0.3s ease;
+
+    box-shadow: -3px 0 10px rgba(0,0,0,0.2);
+}
+
+#side-menu.open {
+    right: 0;
+}
+
+#side-menu ul {
+    list-style: none;
+    padding: 50px 0 0;
+}
+
+#side-menu li {
+    margin: 25px 0;
+}
+
+#side-menu a {
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+}
+
+/* Bouton fermeture */
+#close-menu {
+    float: right;
+    border: none;
+    background: none;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+/* Fond sombre derrière le menu */
+#menu-overlay {
+    display: none;
+
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0,0,0,0.3);
+    z-index: 1100;
+}
+
+#menu-overlay.visible {
+    display: block;
+}
+
+/* Panneau d'info coulissant */
+#info-panel {
+    position: fixed;
+    top: 0;
+    right: -500px;
+    width: 475px;
+    max-width: 85vw;
+    height: 100%;
+
+    background: white;
+    z-index: 1300;
+
+    padding: 30px 25px;
+    box-sizing: border-box;
+    overflow-y: auto;
+
+    transition: right 0.3s ease;
+    box-shadow: -3px 0 10px rgba(0,0,0,0.2);
+}
+
+#info-panel.open {
+    right: 0;
+}
+
+#info-content {
+    margin-top: 18px;
+}
+
+/* Mini-navigation en haut du panneau (À propos / Contact / FAQ) */
+#info-nav {
+    display: flex;
+    gap: 6px;
+    clear: both;
+    padding-top: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.info-nav-link {
+    flex: 1;
+    border: none;
+    background: none;
+    padding: 10px 4px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #777;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.info-nav-link:hover {
+    color: #74C15A;
+}
+
+.info-nav-link.active {
+    color: #74C15A;
+    border-bottom-color: #74C15A;
+}
+
+#info-panel p {
+    line-height: 1.6;
+    color: #333;
+}
+
+/* FAQ en accordéon */
+.faq-item {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px 0;
+}
+
+.faq-item summary {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 15px;
+    color: #1a1a1a;
+    list-style: none;
+    position: relative;
+    padding-right: 24px;
+    line-height: 1.4;
+}
+
+.faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-item summary::after {
+    content: "+";
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 20px;
+    color: #74C15A;
+    transition: transform 0.2s ease;
+}
+
+.faq-item[open] summary::after {
+    content: "+";
+    transform: rotate(45deg);
+}
+
+.faq-item p {
+    margin: 10px 0 0;
+    color: #555;
+    font-size: 14px;
+}
+
+#close-info {
+    float: right;
+    border: none;
+    background: none;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+#info-overlay {
+    display: none;
+
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0,0,0,0.3);
+    z-index: 1250;
+}
+
+#info-overlay.visible {
+    display: block;
+}
+
+@media (max-width: 600px) {
+    #info-panel {
+        width: 100%;
+        max-width: 100vw;
+    }
+}
+
+/* Pied de page */
+footer {
+    padding: 25px 30px;
+    background: #f5f5f5;
+    color: #444;
+    font-size: 14px;
+    line-height: 1.6;
+    border-top: 1px solid #ddd;
+    flex: 0 0 auto;
+}
+
+.footer-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+@media (max-width:600px) {
+    footer {
+        padding: 18px 15px;
+        font-size: 13px;
+    }
+
+    .footer-content {
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+footer h3 {
+    margin-top: 0;
+}
+
+footer a {
+    color: #74C15A;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+.footer-small {
+    font-size: 13px;
+    color: #777;
+    margin: 0;
+}
+
+.footer-stats-icon {
+    display: inline-flex;
+    vertical-align: middle;
+    color: #999;
+}
+
+.footer-stats-icon svg {
+    width: 13px;
+    height: 13px;
+    vertical-align: middle;
+}
+
+/* Icônes de partage du site, dans le footer */
+.footer-share {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+}
+
+.footer-share-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    color: #999;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.footer-share-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.footer-share-icon:hover {
+    color: #74C15A;
+    background: rgba(116, 193, 90, 0.1);
+    text-decoration: none;
+}
+
+.footer-share-copied {
+    color: #74C15A !important;
+}
+
+/* Bulle de confirmation "Lien copié !" au-dessus de l'icône */
+.footer-share-copy-wrapper {
+    position: relative;
+    display: inline-flex;
+}
+
+.copy-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+
+    background: #74C15A;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    padding: 6px 10px;
+    border-radius: 6px;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.copy-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #74C15A;
+}
+
+.copy-tooltip.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+</file>
+
+<file path="index.html">
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mapetanque Belgique</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Police des titres (Quicksand, un seul poids chargé pour rester léger) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@700&display=swap" rel="stylesheet">
+
+    <!-- Bibliothèque Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+
+    <!-- Feuille de style du site -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="header">
+
+    <!-- Sélecteur de langue -->
+    <div id="lang-switcher">
+        <button type="button" class="lang-btn" data-lang="fr">FR</button>
+        <button type="button" class="lang-btn" data-lang="nl">NL</button>
+        <button type="button" class="lang-btn" data-lang="de">DE</button>
+    </div>
+
+    <div class="header-title-block">
+        <h1>
+            <span class="brand"><span class="brand-map">Map</span>etanque</span>
+        </h1>
+
+        <p class="tagline" id="tagline"></p>
+    </div>
+
+    <!-- Navigation desktop : liens directs vers le panneau d'info -->
+    <nav id="desktop-nav">
+        <button type="button" class="info-nav-trigger" data-target="about" data-i18n="menu_about">À propos</button>
+        <button type="button" class="info-nav-trigger" data-target="faq" data-i18n="menu_faq">FAQ</button>
+        <button type="button" class="info-nav-trigger" data-target="contact" data-i18n="menu_contact">Nous contacter</button>
+    </nav>
+
+    <!-- Menu burger (mobile uniquement) -->
+    <button id="menu-button" data-i18n-aria="open_menu">
+        ☰
+    </button>
+
+    <nav id="side-menu">
+        <button id="close-menu" data-i18n-aria="close_menu">
+            ✕
+        </button>
+
+        <ul>
+            <li><a href="#about" data-i18n="menu_about">À propos</a></li>
+            <li><a href="#faq" data-i18n="menu_faq">FAQ</a></li>
+            <li><a href="#contact" data-i18n="menu_contact">Nous contacter</a></li>
+        </ul>
+    </nav>
+
+    <div id="menu-overlay"></div>
+</div>
+
+<div class="controls">
+    <button id="locateBtn">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        <span data-i18n="locate_btn">Me localiser</span>
+    </button>
+
+    <form id="searchForm" class="search-form">
+        <input
+            type="text"
+            id="searchInput"
+            data-i18n-placeholder="search_placeholder"
+            autocomplete="off"
+        >
+        <button type="submit" id="searchBtn" aria-label="Rechercher">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+    </form>
+</div>
+
+<p id="searchError" class="search-error"></p>
+
+<!-- Panneau de partage réutilisable (site ou terrain précis) -->
+<div id="share-overlay"></div>
+<div id="share-panel">
+    <button id="share-close" data-i18n-aria="close_panel">✕</button>
+    <p id="share-title" class="share-title"></p>
+
+    <div class="share-links">
+        <a id="share-whatsapp" class="share-link" target="_blank" rel="noopener">
+            <span class="share-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></span><span data-i18n="share_whatsapp">WhatsApp</span>
+        </a>
+        <a id="share-facebook" class="share-link" target="_blank" rel="noopener">
+            <span class="share-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></span><span data-i18n="share_facebook">Facebook</span>
+        </a>
+        <a id="share-twitter" class="share-link" target="_blank" rel="noopener">
+            <span class="share-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span><span data-i18n="share_twitter">X (Twitter)</span>
+        </a>
+        <a id="share-email" class="share-link">
+            <span class="share-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span><span data-i18n="share_email">E-mail</span>
+        </a>
+        <button type="button" id="share-copy" class="share-link">
+            <span class="share-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></span><span id="share-copy-label" data-i18n="share_copy">Copier le lien</span>
+        </button>
+    </div>
+</div>
+
+<div id="map"></div>
+
+<!-- Panneau d'info coulissant -->
+<aside id="info-panel">
+    <button id="close-info" data-i18n-aria="close_panel">✕</button>
+
+    <nav id="info-nav">
+        <button type="button" class="info-nav-link" data-target="about" data-i18n="menu_about">À propos</button>
+        <button type="button" class="info-nav-link" data-target="faq" data-i18n="menu_faq">FAQ</button>
+        <button type="button" class="info-nav-link" data-target="contact" data-i18n="menu_contact">Contact</button>
+    </nav>
+
+    <div id="info-content"></div>
+</aside>
+<div id="info-overlay"></div>
+
+<footer>
+    <div class="footer-content">
+        <p class="footer-small">
+            <span id="site-stats"></span> · <span id="footer-credit-prefix"></span><a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a>
+        </p>
+
+        <div class="footer-share">
+            <a id="footer-share-whatsapp" class="footer-share-icon" target="_blank" rel="noopener" data-i18n-aria="share_whatsapp" aria-label="WhatsApp">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            </a>
+            <a id="footer-share-facebook" class="footer-share-icon" target="_blank" rel="noopener" data-i18n-aria="share_facebook" aria-label="Facebook">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+            </a>
+            <a id="footer-share-twitter" class="footer-share-icon" target="_blank" rel="noopener" data-i18n-aria="share_twitter" aria-label="X (Twitter)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </a>
+            <a id="footer-share-email" class="footer-share-icon" data-i18n-aria="share_email" aria-label="E-mail">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            </a>
+            <span class="footer-share-copy-wrapper">
+                <button type="button" id="footer-share-copy" class="footer-share-icon" data-i18n-aria="share_copy" aria-label="Copier le lien">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                </button>
+                <span id="copy-tooltip" class="copy-tooltip"></span>
+            </span>
+        </div>
+    </div>
+</footer>
+
+<!-- Bibliothèque Leaflet -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+<!-- Traductions -->
+<script src="translations.js"></script>
+
+<!-- Script du site -->
+<script src="script.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "bab3b6a3e47743b29ac9f42465b94da3"}'></script><!-- End Cloudflare Web Analytics -->
+
+</body>
+</html>
+</file>
+
+<file path="README.md">
+# 🎯 Mapetanque
+
+Carte interactive recensant les terrains de pétanque accessibles au public en Belgique.
+
+🔗 **Site en ligne :** [mapetanque.github.io](https://mapetanque.github.io/)
+📄 **Licence :** [MIT](./LICENSE)
+📋 **Détail des fonctionnalités :** voir [FONCTIONNALITES.md](./FONCTIONNALITES.md)
+
+---
+
+## Historique des évolutions
+
+## ✅ Historique des évolutions
+ 
+- [x] Comprendre pourquoi certains terrains n'apparaissaient pas sur la carte
+- [x] Charger les marqueurs par groupe (cluster) au-delà de plusieurs centaines de terrains
+- [x] Affiner le regroupement des clusters par proximité géographique
+- [x] Ajouter le nombre de terrains recensés + date de dernière mise à jour
+- [x] Ajouter un menu burger (À propos / Nous contacter / FAQ)
+- [x] Étoffer la FAQ (ex. comment ajouter ou supprimer un terrain)
+- [x] Renommer chaque terrain en "Terrain [nom de la rue]"
+- [x] Revoir le style visuel du titre
+- [x] Ajouter la possibilité d'entrer une adresse ou une ville pour se déplacer sur la carte
+- [x] Réfléchir aux canaux de promotion du site
+- [x] Ajouter une version néerlandaise et allemande
+- [x] Raccourcir le sous-titre → "La carte des terrains de pétanque publics en Belgique"
+- [x] Ajouter une confirmation visuelle lors de la copie du lien de partage (footer)
+- [x] Retirer l'intitulé redondant dans le panneau lorsqu'un sous-menu est ouvert
+- [x] La distance vers un terrain doit s'afficher si on a cliqué sur "localiser" OU si on a entré une adresse, une ville etc
+- [x] Modifier la taille à part de laquelle l’affichage mobile s’applique (actuellement 780px, désormais 1024px)
+- [x] Remplacer les petites icones dans les boutons de la page d'accueil et dans les fiches par des icônes dans un style plus sobre et moderne similaire à celles pour les RS dans le footer
+- [x] Changer la couleur globale du site web pour du vert
+- [x] Dans les fiches terrain, enlever le surlignage sur le caractère avt la 1ere lettre
+- [x] Renommer l'intitulé "Pétanque Belgique" qu'on peut voir notamment dans l'intitulé de l'onglet du navigateur, remplacer "Mapetanque Belgique" 
+---
+
+## Partie communautaire (en pause)
+
+- [ ] Créer une fiche individuelle par terrain, indexable par Google
+  - [ ] Permettre aux usagers de noter un terrain sur 5 et d'ajouter un commentaire
+  - [ ] Définir la liste complète des informations associables à un terrain (zone ombragée, bar à proximité, terrain en pente, équipement de comptage des points, etc.)
+- [ ] Prévoir un système de versionning des données, pour pouvoir revenir en arrière en cas d'attaque ou de mauvaise utilisation
+
+---
+
+## Outils utilisés
+
+| Outil | Rôle |
+|---|---|
+| **Visual Studio Code** | Créer et modifier les fichiers du site, organiser le projet |
+| **Leaflet** | Afficher la carte interactive (déplacements, marqueurs, popups...) |
+| **OpenStreetMap** | Source des données géographiques |
+| **Overpass Turbo** | Extraction automatique des données OpenStreetMap via l'API Overpass |
+| **Python** | Automatiser la récupération des données OpenStreetMap (1×/semaine, le lundi à 3h) |
+| **GitHub** | Stockage du projet, historique Git, automatisation, hébergement du site public |
+| **Live Server** (extension VS Code) | Prévisualiser rapidement les changements de code en local |
+
+---
+
+## Structure du projet
+
+```
+├── index.html              # Structure de la page
+├── style.css                # Mise en forme
+├── script.js                 # Logique de la carte et des interactions
+├── translations.js       # Textes du site en FR / NL / DE
+├── generer_terrains.py  # Script de génération hebdomadaire des données
+├── data/
+│   └── terrains.geojson    # Données des terrains (générées automatiquement)
+├── LICENSE                    # Licence MIT
+├── FONCTIONNALITES.md   # Détail de toutes les fonctionnalités du site
+└── README.md               # Ce fichier
+```
+</file>
+
+</files>

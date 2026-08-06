@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mapetanque Belgique</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Police des titres (Quicksand, un seul poids chargé pour rester léger) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@700&display=swap" rel="stylesheet">
+
+    <!-- Bibliothèque Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+
+    <!-- Feuille de style du site -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="map-view" id="top">
+
+<div class="header">
+
+    <!-- Sélecteur de langue -->
+    <div id="lang-switcher">
+        <button type="button" class="lang-btn" data-lang="fr">FR</button>
+        <button type="button" class="lang-btn" data-lang="nl">NL</button>
+        <button type="button" class="lang-btn" data-lang="de">DE</button>
+    </div>
+
+    <div class="header-title-block">
+        <h1>
+            <span class="brand"><span class="brand-map">Map</span>etanque</span>
+        </h1>
+
+        <p class="tagline" id="tagline"></p>
+    </div>
+
+    <!-- Navigation desktop : liens directs vers le panneau d'info -->
+    <nav id="desktop-nav">
+        <button type="button" class="info-nav-trigger" data-target="about" data-i18n="menu_about">À propos</button>
+        <button type="button" class="info-nav-trigger" data-target="faq" data-i18n="menu_faq">FAQ</button>
+        <button type="button" class="info-nav-trigger" data-target="contact" data-i18n="menu_contact">Nous contacter</button>
+    </nav>
+
+    <!-- Menu burger (mobile uniquement) -->
+    <button id="menu-button" data-i18n-aria="open_menu">
+        ☰
+    </button>
+
+    <nav id="side-menu">
+        <button id="close-menu" data-i18n-aria="close_menu">
+            ✕
+        </button>
+
+        <ul>
+            <li><a href="#about" data-i18n="menu_about">À propos</a></li>
+            <li><a href="#faq" data-i18n="menu_faq">FAQ</a></li>
+            <li><a href="#contact" data-i18n="menu_contact">Nous contacter</a></li>
+        </ul>
+    </nav>
+
+    <div id="menu-overlay"></div>
+</div>
+
+<div class="controls">
+    <button id="locateBtn">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        <span data-i18n="locate_btn">Me localiser</span>
+    </button>
+
+    <form id="searchForm" class="search-form">
+        <input
+            type="text"
+            id="searchInput"
+            data-i18n-placeholder="search_placeholder"
+            autocomplete="off"
+        >
+        <button type="submit" id="searchBtn" aria-label="Rechercher">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+    </form>
+</div>
+
+<p id="searchError" class="search-error"></p>
+
+<!-- Panneau de partage réutilisable (site ou terrain précis) -->
+<div id="share-overlay"></div>
+<div id="share-panel">
+    <button id="share-close" data-i18n-aria="close_panel">✕</button>
+    <p id="share-title" class="share-title"></p>
+
+    <div class="share-links">
+        <a id="share-whatsapp" class="share-link" target="_blank" rel="noopener">
+            <span class="share-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></span><span data-i18n="share_whatsapp">WhatsApp</span>
+        </a>
+        <a id="share-facebook" class="share-link" target="_blank" rel="noopener">
+            <span class="share-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></span><span data-i18n="share_facebook">Facebook</span>
+        </a>
+        <a id="share-twitter" class="share-link" target="_blank" rel="noopener">
+            <span class="share-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span><span data-i18n="share_twitter">X (Twitter)</span>
+        </a>
+        <a id="share-email" class="share-link">
+            <span class="share-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span><span data-i18n="share_email">E-mail</span>
+        </a>
+        <button type="button" id="share-copy" class="share-link">
+            <span class="share-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></span><span id="share-copy-label" data-i18n="share_copy">Copier le lien</span>
+        </button>
+    </div>
+</div>
+
+<!-- Liens vers les sections de contenu sous la carte : Statistiques aujourd'hui, d'autres suivront
+     (ex. Terrains insolites). Ajouter une section = ajouter un lien ici, rien d'autre à modifier. -->
+<nav id="content-sections-nav" class="section-links-bar">
+    <a href="#stats-section" class="info-nav-trigger content-section-link">
+        <span data-i18n="menu_stats">Statistiques</span>
+        <svg class="content-section-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </a>
+</nav>
+
+<div id="map"></div>
+
+</div><!-- /.map-view -->
+
+<!-- Lien symétrique du précédent, juste sous la bordure de la carte : remonter en haut de page -->
+<nav id="back-to-top-nav" class="section-links-bar">
+    <a href="#top" class="info-nav-trigger content-section-link">
+        <span data-i18n="back_to_top">Revenir en haut</span>
+        <svg class="content-section-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+    </a>
+</nav>
+
+<!-- Section statistiques : contenu HTML normal, toujours dans le DOM et indexable, comme n'importe quelle page. -->
+<section id="stats-section">
+    <div class="stats-container">
+        <h2 data-i18n="stats_page_title">Statistiques</h2>
+        <p class="stats-intro" data-i18n="stats_page_intro">Un aperçu chiffré des terrains de pétanque recensés en Belgique.</p>
+
+        <div class="stats-headline">
+            <span class="stats-headline-number">…</span>
+            <span class="stats-headline-label" data-i18n="stats_headline_label">terrains de pétanque recensés en Belgique</span>
+        </div>
+
+        <p class="stats-placeholder" data-i18n="stats_placeholder">Détail par région, province et commune — bientôt disponible.</p>
+    </div>
+</section>
+
+<!-- Panneau d'info coulissant -->
+<aside id="info-panel">
+    <button id="close-info" data-i18n-aria="close_panel">✕</button>
+
+    <nav id="info-nav">
+        <button type="button" class="info-nav-link" data-target="about" data-i18n="menu_about">À propos</button>
+        <button type="button" class="info-nav-link" data-target="faq" data-i18n="menu_faq">FAQ</button>
+        <button type="button" class="info-nav-link" data-target="contact" data-i18n="menu_contact">Contact</button>
+    </nav>
+
+    <!-- Contenu construit une seule fois au chargement (et à chaque changement de langue),
+         puis simplement affiché/masqué au clic : reste dans le DOM, donc indexable par Google. -->
+    <div id="info-content">
+        <div class="info-page" id="info-page-about"></div>
+        <div class="info-page" id="info-page-faq"></div>
+        <div class="info-page" id="info-page-contact"></div>
+    </div>
+</aside>
+<div id="info-overlay"></div>
+
+<footer>
+    <div class="footer-content">
+        <p class="footer-small">
+            <span id="site-stats"></span> · <span id="footer-credit-prefix"></span><a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a>
+        </p>
+
+        <div class="footer-share">
+            <a id="footer-share-whatsapp" class="footer-share-icon" target="_blank" rel="noopener" data-i18n-aria="share_whatsapp" aria-label="WhatsApp">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            </a>
+            <a id="footer-share-facebook" class="footer-share-icon" target="_blank" rel="noopener" data-i18n-aria="share_facebook" aria-label="Facebook">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+            </a>
+            <a id="footer-share-twitter" class="footer-share-icon" target="_blank" rel="noopener" data-i18n-aria="share_twitter" aria-label="X (Twitter)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </a>
+            <a id="footer-share-email" class="footer-share-icon" data-i18n-aria="share_email" aria-label="E-mail">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            </a>
+            <span class="footer-share-copy-wrapper">
+                <button type="button" id="footer-share-copy" class="footer-share-icon" data-i18n-aria="share_copy" aria-label="Copier le lien">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                </button>
+                <span id="copy-tooltip" class="copy-tooltip"></span>
+            </span>
+        </div>
+    </div>
+</footer>
+
+<!-- Bibliothèque Leaflet -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+<!-- Traductions -->
+<script src="translations.js"></script>
+
+<!-- Script du site -->
+<script src="script.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "bab3b6a3e47743b29ac9f42465b94da3"}'></script><!-- End Cloudflare Web Analytics -->
+
+</body>
+</html>
