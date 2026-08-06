@@ -29,7 +29,7 @@ const translations = {
         menu_faq: "FAQ",
         menu_stats: "Statistiques",
 
-        stats_page_title: "Statistiques par régions",
+        stats_page_title: "Statistiques par région",
         stats_headline_label: "terrains de pétanque recensés en Belgique",
         stats_terrains_unit: "terrains",
         stats_geo_loading: "Chargement du détail par région…",
