@@ -825,6 +825,10 @@ footer a:hover {
     font-size: 13px;
     color: #777;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .footer-stats-icon {

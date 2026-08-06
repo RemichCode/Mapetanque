@@ -3,7 +3,6 @@ const translations = {
     fr: {
         html_lang: "fr",
         tagline: "La carte des terrains de pétanque publics en Belgique",
-        footer_credit_prefix: "Données issues d'",
 
         locate_btn: "Me localiser",
         search_placeholder: "Adresse, ville, région...",
@@ -102,14 +101,12 @@ const translations = {
         stats_loading: "Chargement des statistiques…",
         stats_unavailable: "Statistiques indisponibles",
         stats_count: (n) => `${n} terrain${n > 1 ? "s" : ""} recensé${n > 1 ? "s" : ""}`,
-        stats_last_update: "Dernière mise à jour",
-        date_locale: "fr-BE"
+        stats_last_update: "Mise à jour",
     },
 
     nl: {
         html_lang: "nl",
         tagline: "De kaart met openbare petanquebanen in België",
-        footer_credit_prefix: "Gegevens afkomstig van ",
 
         locate_btn: "Localiseer mij",
         search_placeholder: "Adres, stad, regio...",
@@ -210,14 +207,12 @@ const translations = {
         stats_loading: "Statistieken laden…",
         stats_unavailable: "Statistieken niet beschikbaar",
         stats_count: (n) => `${n} terrein${n > 1 ? "en" : ""} geregistreerd`,
-        stats_last_update: "Laatste update",
-        date_locale: "nl-BE"
+        stats_last_update: "Update",
     },
 
     de: {
         html_lang: "de",
         tagline: "Die Karte der öffentlichen Pétanque-Plätze in Belgien",
-        footer_credit_prefix: "Daten von ",
 
         locate_btn: "Meinen Standort finden",
         search_placeholder: "Adresse, Stadt, Region...",
@@ -318,8 +313,7 @@ const translations = {
         stats_loading: "Statistiken werden geladen…",
         stats_unavailable: "Statistiken nicht verfügbar",
         stats_count: (n) => `${n} ${n > 1 ? "Plätze" : "Platz"} erfasst`,
-        stats_last_update: "Letzte Aktualisierung",
-        date_locale: "de-BE"
+        stats_last_update: "Aktualisiert",
     }
 
 };

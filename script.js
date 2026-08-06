@@ -70,8 +70,7 @@ function appliquerTraductions() {
     // Titre + tagline
     document.getElementById('tagline').textContent = dict.tagline;
 
-    // Crédit OpenStreetMap dans le footer
-    document.getElementById('footer-credit-prefix').textContent = dict.footer_credit_prefix;
+    // (le crédit OpenStreetMap a été retiré du footer, pour tenir sur une seule ligne en mobile)
 
     // Bouton actif dans le sélecteur de langue
     document.querySelectorAll('.lang-btn').forEach(function (btn) {
@@ -832,11 +831,13 @@ function mettreAJourStats() {
     }
 
     if (lastUpdateRaw !== null) {
-        const dateFormatee = lastUpdateRaw.toLocaleDateString(t('date_locale'), {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        });
+        // Format compact JJ-MM-AA (plutôt que le format long "6 août 2026"), pour que la ligne
+        // tienne sur un seul écran de smartphone. Volontairement identique dans les 3 langues :
+        // un format numérique court reste lisible sans ambiguïté, inutile de le localiser.
+        const jour = String(lastUpdateRaw.getDate()).padStart(2, '0');
+        const mois = String(lastUpdateRaw.getMonth() + 1).padStart(2, '0');
+        const annee = String(lastUpdateRaw.getFullYear()).slice(-2);
+        const dateFormatee = `${jour}-${mois}-${annee}`;
         parts.push(`<span class="footer-stats-icon">${ICON_CLOCK}</span> ${t('stats_last_update')} : ${dateFormatee}`);
     }
 
