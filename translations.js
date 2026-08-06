@@ -29,8 +29,7 @@ const translations = {
         menu_faq: "FAQ",
         menu_stats: "Statistiques",
 
-        stats_page_title: "Statistiques",
-        stats_page_intro: "Un aperçu chiffré des terrains de pétanque recensés en Belgique.",
+        stats_page_title: "Statistiques par régions",
         stats_headline_label: "terrains de pétanque recensés en Belgique",
         stats_terrains_unit: "terrains",
         stats_geo_loading: "Chargement du détail par région…",
@@ -151,8 +150,7 @@ const translations = {
         menu_faq: "FAQ",
         menu_stats: "Statistieken",
 
-        stats_page_title: "Statistieken",
-        stats_page_intro: "Een cijfermatig overzicht van de petanquevelden in België.",
+        stats_page_title: "Statistieken per regio",
         stats_headline_label: "petanquevelden geregistreerd in België",
         stats_terrains_unit: "terreinen",
         stats_geo_loading: "Details per regio laden…",
@@ -275,8 +273,7 @@ const translations = {
         menu_faq: "FAQ",
         menu_stats: "Statistiken",
 
-        stats_page_title: "Statistiken",
-        stats_page_intro: "Ein zahlenbasierter Überblick über die erfassten Boule-/Pétanque-Plätze in Belgien.",
+        stats_page_title: "Statistiken nach Region",
         stats_headline_label: "erfasste Boule-/Pétanque-Plätze in Belgien",
         stats_terrains_unit: "Plätze",
         stats_geo_loading: "Details nach Region werden geladen…",

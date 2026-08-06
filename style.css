@@ -49,15 +49,9 @@ body {
 }
 
 .stats-container h2 {
-    margin: 0 0 8px;
+    margin: 0 0 28px;
     font-size: 26px;
     color: #333;
-}
-
-.stats-intro {
-    margin: 0 0 30px;
-    color: #666;
-    font-size: 14px;
 }
 
 .stats-headline {
@@ -94,7 +88,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 106px;
+    min-height: 127px;
     text-decoration: none;
     background: white;
     border: 1px solid #e2e6de;
@@ -282,7 +276,7 @@ body {
 
     .stats-region-tile {
         padding: 12px 4px;
-        min-height: 92px;
+        min-height: 110px;
     }
 
     .stats-region-tile-number {
