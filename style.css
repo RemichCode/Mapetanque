@@ -81,13 +81,213 @@ body {
     color: #555;
 }
 
-.stats-placeholder {
+/* Tuiles résumé des 3 régions, au-dessus de l'entonnoir */
+.stats-regions-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.stats-region-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 106px;
+    text-decoration: none;
+    background: white;
+    border: 1px solid #e2e6de;
+    border-radius: 12px;
+    padding: 16px 8px;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.stats-region-tile-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 92%;
+    height: 92%;
+    transform: translate(-50%, -50%);
+    color: #000;
+    opacity: 0.05;
+    pointer-events: none;
+}
+
+.stats-region-tile-number,
+.stats-region-tile-name,
+.stats-region-tile-density {
+    position: relative;
+    z-index: 1;
+}
+
+.stats-region-tile-density {
+    font-size: 11px;
+    color: #999;
+    margin-top: 2px;
+}
+
+.stats-region-tile:hover {
+    border-color: #74C15A;
+    transform: translateY(-2px);
+}
+
+.stats-region-tile-number {
+    font-family: 'Quicksand', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #333;
+    line-height: 1;
+}
+
+.stats-region-tile-name {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+}
+
+/* Entonnoir région > province > commune, en accordéons imbriqués (même pattern que la FAQ) */
+#stats-geo-tree {
+    text-align: left;
+}
+
+.stats-geo-loading,
+.stats-geo-error {
     font-size: 13px;
     font-style: italic;
     color: #999;
-    border-top: 1px solid #e2e2e2;
-    padding-top: 20px;
-    margin-top: 20px;
+    text-align: center;
+}
+
+.stats-region-details {
+    background: white;
+    border: 1px solid #e2e6de;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+.stats-region-details summary,
+.stats-province-details summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    list-style: none;
+    position: relative;
+    padding: 12px 28px 12px 16px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #444;
+}
+
+.stats-province-details summary {
+    padding-left: 4px;
+    font-size: 13px;
+}
+
+.stats-region-details summary::-webkit-details-marker,
+.stats-province-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.stats-region-details > summary::after,
+.stats-province-details > summary::after {
+    content: "+";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: #74C15A;
+    transition: transform 0.2s ease;
+}
+
+.stats-province-details > summary::after {
+    right: 0;
+}
+
+.stats-region-details[open] > summary::after,
+.stats-province-details[open] > summary::after {
+    transform: translateY(-50%) rotate(45deg);
+}
+
+.stats-details-count {
+    font-size: 12px;
+    color: #999;
+    font-weight: normal;
+}
+
+.stats-region-content {
+    padding: 0 16px 12px;
+}
+
+.stats-province-details {
+    border-top: 1px solid #eee;
+    padding: 4px 0;
+}
+
+.stats-province-details:first-child {
+    border-top: none;
+}
+
+.stats-commune-list-wrapper {
+    padding: 8px 4px 4px;
+}
+
+.stats-commune-search {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 7px 12px;
+    border: 1px solid #ddd;
+    border-radius: 16px;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.stats-commune-list {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.stats-commune-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #555;
+    padding: 5px 4px;
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.stats-commune-row:last-child {
+    border-bottom: none;
+}
+
+.stats-commune-no-result {
+    font-size: 12px;
+    font-style: italic;
+    color: #999;
+    text-align: center;
+    padding: 8px 0;
+}
+
+@media (max-width: 600px) {
+    .stats-regions-tiles {
+        gap: 6px;
+    }
+
+    .stats-region-tile {
+        padding: 12px 4px;
+        min-height: 92px;
+    }
+
+    .stats-region-tile-number {
+        font-size: 20px;
+    }
 }
 
 /* Flèche indiquant la direction du terrain le plus proche, quand aucun n'est visible à l'écran */
@@ -777,9 +977,13 @@ footer {
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 700;
+    /* Doit passer au-dessus des contrôles Leaflet (zoom, attribution, calques), qui ont un
+       z-index de 1000 par défaut — sinon l'attribution "Leaflet | © OpenStreetMap" en bas à
+       droite de la carte peut chevaucher le footer. Reste sous les panneaux de l'app (menu,
+       info, partage), qui commencent à 1100. */
+    z-index: 1050;
 
-    padding: 25px 30px;
+    padding: 14px 30px;
     background: #f5f5f5;
     color: #444;
     font-size: 14px;
@@ -798,7 +1002,7 @@ footer {
 
 @media (max-width:600px) {
     footer {
-        padding: 18px 15px;
+        padding: 11px 15px;
         font-size: 13px;
     }
 
@@ -855,8 +1059,8 @@ footer a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     color: #999;
     border: none;
@@ -866,8 +1070,8 @@ footer a:hover {
 }
 
 .footer-share-icon svg {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
 }
 
 .footer-share-icon:hover {

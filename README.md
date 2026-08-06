@@ -51,12 +51,7 @@ Carte interactive recensant les terrains de pétanque accessibles au public en B
 - Ouverture depuis le menu burger (☰, en haut à droite)
 - Mini-navigation interne en haut du panneau (À propos / Contact / FAQ) permettant de changer de sujet **sans refermer le panneau**
 - Onglet actif mis en évidence visuellement
-- FAQ en accordéon natif (`<details>`/`<summary>`, sans JS dédié) — actuellement 5 questions/réponses :
-  1. D'où viennent les informations affichées sur la carte ?
-  2. Comment trouver un terrain près de moi ?
-  3. Puis-je ajouter une photo, un avis ou des informations pratiques ?
-  4. Un terrain accessible au public près de chez moi n'apparaît pas sur la carte, que faire ?
-  5. Un terrain indiqué sur la carte n'existe plus ou n'est plus praticable, que faire ?
+- FAQ en accordéon natif (`<details>`/`<summary>`, sans JS dédié) 
 
 ## 📊 Footer
 

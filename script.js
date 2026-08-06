@@ -86,6 +86,10 @@ function appliquerTraductions() {
     // Régénérer le bandeau chiffré de la section statistiques
     mettreAJourBandeauStats();
 
+    // Reconstruire l'entonnoir région/province/commune dans la nouvelle langue (sans re-télécharger
+    // les données, déjà en cache dans statsGeoData ; ne fait rien si le fetch n'est pas encore arrivé)
+    construireStatsGeo();
+
     // Actualiser les liens de partage du site dans le footer (texte traduit)
     if (typeof actualiserLiensPartageFooter === 'function') {
         actualiserLiensPartageFooter();
@@ -813,6 +817,260 @@ function mettreAJourBandeauStats() {
     el.textContent = terrainsCount !== null ? terrainsCount : '…';
 }
 
+// Ordre d'affichage fixe des régions (pas d'ordre "naturel" dans un objet JS/JSON)
+const ORDRE_REGIONS = ['wallonie', 'flandre', 'bruxelles'];
+
+// Superficies officielles (Statbel/SPF Finances, données 2024-2025), en km². Référence géographique
+// statique : contrairement au nombre de terrains, elle ne nécessite pas de régénération régulière,
+// d'où un objet fixe ici plutôt qu'un fichier de données séparé. Vérifié : la somme des provinces de
+// chaque région correspond au total officiel de la région (16901 km² Wallonie, 13626 km² Flandre).
+const SUPERFICIES_KM2 = {
+    wallonie: 16901,
+    flandre: 13626,
+    bruxelles: 162.4,
+
+    brabant_wallon: 1097,
+    hainaut: 3813,
+    liege: 3857,
+    luxembourg: 4459,
+    namur: 3675,
+    anvers: 2876,
+    brabant_flamand: 2118,
+    limbourg: 2427,
+    flandre_orientale: 3007,
+    flandre_occidentale: 3197
+};
+
+// Densité au km² formatée avec virgule décimale (convention belge dans les 3 langues du site)
+function formaterDensite(nombreTerrains, cleGeo) {
+    const superficie = SUPERFICIES_KM2[cleGeo];
+    if (!superficie) return null;
+    return (nombreTerrains / superficie).toFixed(2).replace('.', ',') + '/km²';
+}
+
+// Filigranes discrets pour les tuiles région (silhouette officielle, en gris clair) : coq wallon,
+// lion flamand, iris bruxellois. Temporairement vide : en attente des tracés SVG officiels exacts
+// (fichiers du domaine public) à extraire, plutôt que d'utiliser une approximation dessinée à la main.
+const FILIGRANE_REGIONS = {};
+
+// Rempli une seule fois par le fetch de data/stats_geo.json, puis réutilisé à chaque
+// reconstruction de l'affichage (changement de langue) sans re-télécharger le fichier
+let statsGeoData = null;
+
+// Minuscules + accents retirés, pour une recherche de commune insensible à la casse/aux accents
+function normaliserRecherche(texte) {
+    return texte
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+}
+
+// Trie une liste de clés (régions ou provinces) selon leur libellé traduit, dans la langue active
+function trierParLibelleTraduit(cles, prefixe, dict) {
+    return cles.slice().sort(function (a, b) {
+        const libelleA = dict[prefixe + a] || a;
+        const libelleB = dict[prefixe + b] || b;
+        return libelleA.localeCompare(libelleB, currentLang);
+    });
+}
+
+// Construit la liste des communes d'une province (ou d'une région sans province, cas de Bruxelles),
+// avec un champ de recherche qui filtre les lignes déjà présentes dans le DOM (aucune ligne n'est
+// ajoutée/retirée du DOM par la recherche, seulement masquée : le contenu reste indexable).
+function construireListeCommunes(communes, dict) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'stats-commune-list-wrapper';
+
+    const recherche = document.createElement('input');
+    recherche.type = 'text';
+    recherche.className = 'stats-commune-search';
+    recherche.placeholder = dict.stats_search_commune_placeholder;
+    wrapper.appendChild(recherche);
+
+    const liste = document.createElement('div');
+    liste.className = 'stats-commune-list';
+
+    const aucunResultat = document.createElement('p');
+    aucunResultat.className = 'stats-commune-no-result';
+    aucunResultat.textContent = dict.stats_no_results;
+    aucunResultat.style.display = 'none';
+
+    const nomsTries = Object.keys(communes).sort(function (a, b) {
+        return a.localeCompare(b, currentLang);
+    });
+
+    nomsTries.forEach(function (nom) {
+        const ligne = document.createElement('div');
+        ligne.className = 'stats-commune-row';
+        ligne.dataset.rechercheClef = normaliserRecherche(nom);
+
+        const nomSpan = document.createElement('span');
+        nomSpan.textContent = nom;
+
+        const compteSpan = document.createElement('span');
+        compteSpan.textContent = communes[nom];
+
+        ligne.appendChild(nomSpan);
+        ligne.appendChild(compteSpan);
+        liste.appendChild(ligne);
+    });
+
+    liste.appendChild(aucunResultat);
+    wrapper.appendChild(liste);
+
+    recherche.addEventListener('input', function () {
+        const terme = normaliserRecherche(recherche.value);
+        let visibles = 0;
+        liste.querySelectorAll('.stats-commune-row').forEach(function (ligne) {
+            const correspond = ligne.dataset.rechercheClef.indexOf(terme) !== -1;
+            ligne.style.display = correspond ? 'flex' : 'none';
+            if (correspond) visibles++;
+        });
+        aucunResultat.style.display = visibles === 0 ? 'block' : 'none';
+    });
+
+    return wrapper;
+}
+
+function construireDetailsProvince(cleProvince, donneesProvince, dict) {
+    const details = document.createElement('details');
+    details.className = 'stats-province-details';
+
+    const summary = document.createElement('summary');
+    const nomSpan = document.createElement('span');
+    nomSpan.textContent = dict['geo_province_' + cleProvince] || cleProvince;
+    const compteSpan = document.createElement('span');
+    compteSpan.className = 'stats-details-count';
+    const densite = formaterDensite(donneesProvince.total, cleProvince);
+    compteSpan.textContent = donneesProvince.total + ' ' + dict.stats_terrains_unit + (densite ? ' · ' + densite : '');
+    summary.appendChild(nomSpan);
+    summary.appendChild(compteSpan);
+    details.appendChild(summary);
+
+    details.appendChild(construireListeCommunes(donneesProvince.communes, dict));
+
+    return details;
+}
+
+function construireDetailsRegion(cleRegion, donneesRegion, dict) {
+    const details = document.createElement('details');
+    details.className = 'stats-region-details';
+    details.id = 'stats-region-' + cleRegion;
+
+    const summary = document.createElement('summary');
+    const nomSpan = document.createElement('span');
+    nomSpan.textContent = dict['geo_region_' + cleRegion] || cleRegion;
+    const compteSpan = document.createElement('span');
+    compteSpan.className = 'stats-details-count';
+    const densite = formaterDensite(donneesRegion.total, cleRegion);
+    compteSpan.textContent = donneesRegion.total + ' ' + dict.stats_terrains_unit + (densite ? ' · ' + densite : '');
+    summary.appendChild(nomSpan);
+    summary.appendChild(compteSpan);
+    details.appendChild(summary);
+
+    const contenu = document.createElement('div');
+    contenu.className = 'stats-region-content';
+
+    const clesProvinces = Object.keys(donneesRegion.provinces);
+    if (clesProvinces.length > 0) {
+        trierParLibelleTraduit(clesProvinces, 'geo_province_', dict).forEach(function (cleProvince) {
+            contenu.appendChild(construireDetailsProvince(cleProvince, donneesRegion.provinces[cleProvince], dict));
+        });
+    } else {
+        // Cas de Bruxelles : pas de province, les communes sont directement sous la région
+        contenu.appendChild(construireListeCommunes(donneesRegion.communes, dict));
+    }
+
+    details.appendChild(contenu);
+    return details;
+}
+
+// Tuile résumé d'une région : lien-ancre natif vers son accordéon plus bas, qu'il ouvre
+// automatiquement au clic (en plus du scroll natif de l'ancre)
+function construireTuileRegion(cleRegion, donneesRegion, dict) {
+    const tuile = document.createElement('a');
+    tuile.href = '#stats-region-' + cleRegion;
+    tuile.className = 'stats-region-tile';
+
+    if (FILIGRANE_REGIONS[cleRegion]) {
+        tuile.insertAdjacentHTML('afterbegin', FILIGRANE_REGIONS[cleRegion]);
+    }
+
+    const nombre = document.createElement('span');
+    nombre.className = 'stats-region-tile-number';
+    nombre.textContent = donneesRegion.total;
+
+    const nom = document.createElement('span');
+    nom.className = 'stats-region-tile-name';
+    nom.textContent = dict['geo_region_' + cleRegion] || cleRegion;
+
+    tuile.appendChild(nombre);
+    tuile.appendChild(nom);
+
+    const densite = formaterDensite(donneesRegion.total, cleRegion);
+    if (densite) {
+        const densiteSpan = document.createElement('span');
+        densiteSpan.className = 'stats-region-tile-density';
+        densiteSpan.textContent = densite;
+        tuile.appendChild(densiteSpan);
+    }
+
+    tuile.addEventListener('click', function () {
+        const cible = document.getElementById('stats-region-' + cleRegion);
+        if (cible) cible.open = true;
+    });
+
+    return tuile;
+}
+
+// Reconstruit l'intégralité des tuiles + de l'entonnoir région > province > commune, à partir des
+// données déjà téléchargées (statsGeoData) et de la langue active. Appelée une fois les données
+// arrivées, puis à chaque changement de langue (voir appliquerTraductions) — jamais au clic.
+function construireStatsGeo() {
+    if (!statsGeoData) return;
+
+    const dict = translations[currentLang];
+
+    const tuilesConteneur = document.getElementById('stats-regions-tiles');
+    const arbreConteneur = document.getElementById('stats-geo-tree');
+    if (!tuilesConteneur || !arbreConteneur) return;
+
+    tuilesConteneur.innerHTML = "";
+    arbreConteneur.innerHTML = "";
+
+    ORDRE_REGIONS.forEach(function (cleRegion) {
+        const donneesRegion = statsGeoData[cleRegion];
+        if (!donneesRegion) return;
+
+        tuilesConteneur.appendChild(construireTuileRegion(cleRegion, donneesRegion, dict));
+        arbreConteneur.appendChild(construireDetailsRegion(cleRegion, donneesRegion, dict));
+    });
+}
+
+// Petit état de chargement immédiat, remplacé dès que les données arrivent (ou par un message
+// d'erreur en cas d'échec) — évite un vide silencieux pendant le téléchargement de stats_geo.json
+const arbreInitial = document.getElementById('stats-geo-tree');
+if (arbreInitial) {
+    arbreInitial.innerHTML = '<p class="stats-geo-loading">' + translations[currentLang].stats_geo_loading + '</p>';
+}
+
+fetch('data/stats_geo.json')
+    .then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
+    })
+    .then(function (data) {
+        statsGeoData = data;
+        construireStatsGeo();
+    })
+    .catch(function (e) {
+        console.error('Erreur de chargement de data/stats_geo.json :', e);
+        const arbreConteneur = document.getElementById('stats-geo-tree');
+        if (arbreConteneur) {
+            arbreConteneur.innerHTML = '<p class="stats-geo-error">' + translations[currentLang].stats_geo_error + '</p>';
+        }
+    });
+
 // ===================== Statistiques du footer =====================
 
 let terrainsCount = null;
@@ -888,12 +1146,17 @@ if (footerEl) {
         new ResizeObserver(function (entries) {
             for (const entry of entries) {
                 document.documentElement.style.setProperty('--footer-height', entry.contentRect.height + 'px');
+                // La hauteur de .map-view dépend de --footer-height : Leaflet doit recalculer
+                // ses dimensions internes à chaque fois qu'elle change (sinon les tuiles/contrôles
+                // peuvent rester positionnés sur l'ancienne taille du conteneur).
+                map.invalidateSize();
             }
         }).observe(footerEl);
     } else {
         // Repli pour les navigateurs sans ResizeObserver
         const ajusterHauteurFooter = function () {
             document.documentElement.style.setProperty('--footer-height', footerEl.offsetHeight + 'px');
+            map.invalidateSize();
         };
         ajusterHauteurFooter();
         window.addEventListener('resize', ajusterHauteurFooter);

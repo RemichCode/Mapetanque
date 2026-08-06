@@ -145,7 +145,12 @@
             <span class="stats-headline-label" data-i18n="stats_headline_label">terrains de pétanque recensés en Belgique</span>
         </div>
 
-        <p class="stats-placeholder" data-i18n="stats_placeholder">Détail par région, province et commune — bientôt disponible.</p>
+        <!-- Contenu construit dynamiquement en JS depuis data/stats_geo.json (voir construireStatsGeo
+             dans script.js), au chargement de la page et à chaque changement de langue — pas au clic,
+             donc indexable normalement, comme le reste des données de la carte. -->
+        <div id="stats-regions-tiles" class="stats-regions-tiles"></div>
+
+        <div id="stats-geo-tree"></div>
     </div>
 </section>
 
